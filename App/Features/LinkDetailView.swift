@@ -26,8 +26,8 @@ struct LinkDetailView: View {
                 Button { UIPasteboard.general.string = current["url"] } label: { Label("Copy link", systemImage: "doc.on.doc") }
             }
             Section("Details") {
-                TextField("Title", text: $title, axis: .vertical).onChange(of: title) { _, _ in edited = true }
-                TextField("Description (optional)", text: $summary, axis: .vertical).onChange(of: summary) { _, _ in edited = true }
+                TextField("Title", text: $title, axis: .vertical).accessibilityIdentifier("editLinkTitle").onChange(of: title) { _, _ in edited = true }
+                TextField("Description (optional)", text: $summary, axis: .vertical).accessibilityIdentifier("editLinkSummary").onChange(of: summary) { _, _ in edited = true }
                 Picker("Collection", selection: $collection) {
                     Text("Unfiled").tag(String?.none)
                     ForEach(model.snapshot.visible(.collection, zone: item.zone).sorted { $0.title < $1.title }) { Text($0.title).tag(Optional($0.id)) }
@@ -62,7 +62,20 @@ struct LinkDetailView: View {
                 collection = model.snapshot.visible(.collection, zone: item.zone).contains { $0.id == current["collection"] } ? current["collection"] : nil
                 note = model.snapshot.visible(.note).first { $0["link"] == item.key }?["text"] ?? ""
                 edited = false
-                if !Configuration.isUITesting, let url = try? LinkRules.validatedURL(current["url"]) { metadata = try? await MetadataService.shared.metadata(for: url) }
+                if !Configuration.isUITesting, let url = try? LinkRules.validatedURL(current["url"]) {
+                    let original = current
+                    metadata = try? await MetadataService.shared.metadata(for: url)
+                    if canWrite, original.title == original["domain"], let fetched = metadata?.title, !fetched.isEmpty {
+                        await model.perform {
+                            try await model.store.transaction { state in
+                                if let existing = state.items[original.key], !existing.deleted, existing.fields["title"] == original.fields["title"] {
+                                    _ = state.edit(existing, values: ["title": LinkRules.metadataTitle(fetched, url: url)])
+                                }
+                            }
+                        }
+                        if title == original.title { title = model.snapshot.items[original.key]?.title ?? title }
+                    }
+                }
             }
             .confirmationDialog("Delete this link for everyone?", isPresented: $deleting, titleVisibility: .visible) {
                 Button("Delete link", role: .destructive) { Task { await model.perform { try await model.service.delete(current) }; if model.error == nil { dismiss() } } }

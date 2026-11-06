@@ -99,9 +99,9 @@ struct AppleCloudRepository: CloudRepository {
             return existing
         }
     }
-    func accept(_ metadata: CKShare.Metadata) async throws {
-        guard metadata.containerIdentifier == container.containerIdentifier else { throw LinkinError.cloud("This invitation belongs to another app.") }
-        _ = try await currentUserID()
+    func accept(_ metadata: CKShare.Metadata, boundAccount: String?) async throws {
+        let user = try await currentUserID()
+        try InvitationRules.validate(container: metadata.containerIdentifier, expected: container.containerIdentifier ?? "", currentUser: user, boundUser: boundAccount)
         let result = try await container.accept([metadata])
         guard let accepted = result[metadata] else { throw LinkinError.cloud("iCloud did not confirm your invitation. Try opening it again.") }
         _ = try accepted.get()

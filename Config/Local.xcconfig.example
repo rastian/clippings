@@ -1,0 +1,6 @@
+// Copy this file to Local.xcconfig (ignored by Git).
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+LINKIN_BUNDLE_ID = app.linkin.family
+LINKIN_CONTAINER = iCloud.app.linkin.family
+LINKIN_APP_GROUP = group.app.linkin.family
+LINKIN_CLOUD_ENABLED = YES

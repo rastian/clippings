@@ -45,16 +45,7 @@ final class ShareModel {
             let providers = items.flatMap { $0.attachments ?? [] }
             for type in [UTType.url.identifier, UTType.plainText.identifier] {
                 for provider in providers.prefix(12) where provider.hasItemConformingToTypeIdentifier(type) {
-                    let text: String? = await withCheckedContinuation { continuation in
-                        provider.loadItem(forTypeIdentifier: type, options: nil) { item, _ in
-                            let result: String?
-                            if let url = item as? URL { result = url.absoluteString }
-                            else if let text = item as? String { result = text }
-                            else if let data = item as? Data { result = String(data: data, encoding: .utf8) }
-                            else { result = nil }
-                            continuation.resume(returning: result)
-                        }
-                    }
+                    let text = await AttachmentReader.text(from: provider, type: type)
                     if let text, let valid = try? SharedInput.url(in: text) {
                         url = valid.absoluteString
                         return
@@ -88,6 +79,7 @@ final class ShareModel {
 }
 
 struct ShareForm: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Bindable var model: ShareModel
     let complete: () -> Void
     let cancel: () -> Void
@@ -141,6 +133,6 @@ struct ShareForm: View {
                     }
                 }
                 .alert("Couldn’t save this link", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) { Button("OK") { model.error = nil } } message: { Text(model.error ?? "") }
-        }.tint(Color(red: 0.18, green: 0.38, blue: 0.30))
+        }.tint(colorScheme == .dark ? Color(red: 0.52, green: 0.78, blue: 0.63) : Color(red: 0.18, green: 0.38, blue: 0.30))
     }
 }

@@ -66,7 +66,7 @@ struct CollectionEditor: View {
                             Button { icon = symbol } label: {
                                 Image(systemName: symbol).font(.title2).frame(minWidth: 44, minHeight: 44)
                                     .background(icon == symbol ? Design.accent.opacity(0.15) : .clear, in: RoundedRectangle(cornerRadius: 10))
-                            }.buttonStyle(.plain).foregroundStyle(Design.accent).accessibilityLabel(symbol.replacingOccurrences(of: ".", with: " ")).accessibilityAddTraits(icon == symbol ? .isSelected : [])
+                            }.buttonStyle(.plain).foregroundStyle(Design.accent).accessibilityLabel(Design.iconNames[symbol] ?? "Collection icon").accessibilityAddTraits(icon == symbol ? .isSelected : [])
                         }
                     }.padding(.vertical, 8)
                 }

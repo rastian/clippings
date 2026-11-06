@@ -33,7 +33,7 @@ final class LocalTests: XCTestCase {
         let library = try await service.createLibrary(name: "Family", userID: "A")
         let collection = try await service.createCollection(name: "Recipes", icon: "fork.knife", library: library, userID: "A")
         let first = try await service.saveLink(url: "https://example.com/a#top", title: "Pasta", collection: collection.id, library: library, userID: "A", now: Date(timeIntervalSince1970: 10))
-        let duplicate = try await service.saveLink(url: "https://example.com/a", library: library, userID: "A")
+        let duplicate = try await service.saveLink(url: "https://example.com/a", collection: collection.id, library: library, userID: "A")
         XCTAssertEqual(first.id, duplicate.id)
         let second = try await service.saveLink(url: "https://example.com/b", title: "Picnic", library: library, userID: "A", now: Date(timeIntervalSince1970: 20))
         try await service.saveNote(for: first, text: "Grandma’s favourite", userID: "A")

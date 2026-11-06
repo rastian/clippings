@@ -27,22 +27,23 @@ def target(name, product_type, ext, folders, settings):
           'SDKROOT':'iphoneos','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','PRODUCT_NAME':name,
           'SWIFT_OPTIMIZATION_LEVEL':'-Onone' if mode=='Debug' else '-O',
           'SWIFT_ACTIVE_COMPILATION_CONDITIONS':'DEBUG' if mode=='Debug' else '',
-          'ENABLE_TESTABILITY':'YES' if mode=='Debug' else 'NO', **settings},name=mode))
+          'ENABLE_TESTABILITY':'YES' if mode=='Debug' else 'NO',
+          'ONLY_ACTIVE_ARCH':'YES' if mode=='Debug' else 'NO', **settings},name=mode))
     cl=add(name+'configs','XCConfigurationList',buildConfigurations=configs,defaultConfigurationIsVisible=0,defaultConfigurationName='Release')
     tid=add(name,'PBXNativeTarget',buildConfigurationList=cl,buildPhases=[source,framework,resource],buildRules=[],dependencies=[],fileSystemSynchronizedGroups=sync,name=name,productName=name,productReference=product,productType='com.apple.product-type.'+('application' if ext=='app' else 'app-extension' if ext=='appex' else 'bundle.ui-testing' if name=='linkinUITests' else 'bundle.unit-test'))
     targets.append(tid); return tid
 app=target('linkin','wrapper.application','app',['App','Sources/LinkinCore'],{'INFOPLIST_FILE':'Config/App-Info.plist','CODE_SIGN_ENTITLEMENTS':'Config/App.entitlements','ASSETCATALOG_COMPILER_APPICON_NAME':'AppIcon','ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME':'AccentColor'})
-unit=target('linkinTests','wrapper.cfbundle','xctest',['Tests/LinkinCoreTests'],{'GENERATE_INFOPLIST_FILE':'YES','PRODUCT_BUNDLE_IDENTIFIER':'app.linkin.family.tests','TEST_HOST':'$(BUILT_PRODUCTS_DIR)/linkin.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/linkin','BUNDLE_LOADER':'$(TEST_HOST)'})
-ui=target('linkinUITests','wrapper.cfbundle','xctest',['UITests'],{'GENERATE_INFOPLIST_FILE':'YES','PRODUCT_BUNDLE_IDENTIFIER':'app.linkin.family.uitests','TEST_TARGET_NAME':'linkin'})
+unit=target('linkinTests','wrapper.cfbundle','xctest',['Tests/LinkinCoreTests'],{'GENERATE_INFOPLIST_FILE':'YES','PRODUCT_BUNDLE_IDENTIFIER':'$(LINKIN_BUNDLE_ID).tests','TEST_HOST':'$(BUILT_PRODUCTS_DIR)/linkin.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/linkin','BUNDLE_LOADER':'$(TEST_HOST)'})
+ui=target('linkinUITests','wrapper.cfbundle','xctest',['UITests'],{'GENERATE_INFOPLIST_FILE':'YES','PRODUCT_BUNDLE_IDENTIFIER':'$(LINKIN_BUNDLE_ID).uitests','TEST_TARGET_NAME':'linkin'})
 def dependency(a,b):
     proxy=add(a+b+'proxy','PBXContainerItemProxy',containerPortal=ident('project'),proxyType=1,remoteGlobalIDString=b,remoteInfo=objects[b]['name'])
     dep=add(a+b+'dependency','PBXTargetDependency',target=b,targetProxy=proxy); objects[a]['dependencies'].append(dep)
 dependency(unit,app); dependency(ui,app)
 if (ROOT/'ShareExtension/ShareViewController.swift').exists():
-    extension=target('linkinShare','wrapper.app-extension','appex',['ShareExtension'],{'INFOPLIST_FILE':'Config/Share-Info.plist','CODE_SIGN_ENTITLEMENTS':'Config/Share.entitlements','PRODUCT_BUNDLE_IDENTIFIER':'app.linkin.family.share','APPLICATION_EXTENSION_API_ONLY':'YES','SKIP_INSTALL':'YES'})
+    extension=target('linkinShare','wrapper.app-extension','appex',['ShareExtension'],{'INFOPLIST_FILE':'Config/Share-Info.plist','CODE_SIGN_ENTITLEMENTS':'Config/Share.entitlements','PRODUCT_BUNDLE_IDENTIFIER':'$(LINKIN_BUNDLE_ID).share','APPLICATION_EXTENSION_API_ONLY':'YES','SKIP_INSTALL':'YES'})
     objects[extension]['fileSystemSynchronizedGroups'].append(ident('Sources/LinkinCore'))
     # Apple service sources are shared explicitly with the extension.
-    for file in ['Configuration.swift','CloudRepository.swift','RecordCodec.swift','MetadataService.swift']:
+    for file in ['Configuration.swift','CloudRepository.swift','RecordCodec.swift','AttachmentReader.swift']:
         path='App/Services/'+file
         if (ROOT/path).exists():
             ref=add('extensionref'+file,'PBXFileReference',lastKnownFileType='sourcecode.swift',path=path,sourceTree='<group>'); groups.append(ref)

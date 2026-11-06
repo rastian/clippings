@@ -18,7 +18,7 @@ struct LinkinApp: App {
                     await model.start()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .CKAccountChanged)) { _ in
-                    model.accountBlocked = true; Task { await model.refresh() }
+                    model.accountBlocked = true; Task { await model.engine?.cancel(); await model.refresh() }
                 }
                 .onOpenURL { url in
                     guard let cloud = model.cloud, url.scheme == "https", url.host == "www.icloud.com" || url.host == "icloud.com" else { return }
@@ -61,10 +61,10 @@ struct RootView: View {
         .sheet(item: $model.sharingSheet) { sheet in
             CloudSharingView(sheet: sheet, onFinish: { Task { await model.refresh() } }, onError: { model.error = $0 })
         }
-        .confirmationDialog("Join this family library?", isPresented: Binding(get: { AppEvents.shared.invitation != nil }, set: { if !$0 { AppEvents.shared.invitation = nil } }), titleVisibility: .visible) {
-            Button("Join library") { if let invitation = AppEvents.shared.invitation { Task { await model.acceptInvitation(invitation) } } }
+        .confirmationDialog("Join this family library?", isPresented: Binding(get: { AppEvents.shared.invitation != nil }, set: { if !$0 { AppEvents.shared.invitation = nil } }), titleVisibility: .visible, presenting: AppEvents.shared.invitation) { invitation in
+            Button("Join library") { Task { await model.acceptInvitation(invitation) } }
             Button("Cancel", role: .cancel) { AppEvents.shared.invitation = nil }
-        } message: { Text("Your Apple Account will be visible to the other participants.") }
+        } message: { _ in Text("Your Apple Account will be visible to the other participants.") }
         .alert("Something needs attention", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
             Button("OK") { model.error = nil }
         } message: { Text(model.error ?? "") }

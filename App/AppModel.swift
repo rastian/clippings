@@ -2,11 +2,14 @@ import SwiftUI
 import Observation
 import CloudKit
 import Network
+import os
 
 @MainActor @Observable
 final class AppModel {
     let store: LocalStore
     let service: LibraryService
+    private let metadata: any MetadataProviding
+    private let logger = Logger(subsystem: "app.linkin.family", category: "sync")
     var snapshot = Snapshot()
     var selectedLibraryKey: String?
     var error: String?
@@ -25,8 +28,8 @@ final class AppModel {
     var userID: String { snapshot.accountID ?? "local-user" }
     var library: Item? { snapshot.libraries.first { $0.key == selectedLibraryKey } ?? snapshot.libraries.first }
     var unread: [Item] { LinkRules.unreadMentions(in: snapshot, userID: userID) }
-    init(store: LocalStore = Configuration.store) {
-        self.store = store; service = LibraryService(store: store)
+    init(store: LocalStore = Configuration.store, metadata: any MetadataProviding = MetadataService.shared) {
+        self.store = store; self.metadata = metadata; service = LibraryService(store: store)
         mentions = MentionProcessor(store: store, notifier: AppleMentionNotifier())
         let cloud = Configuration.cloudAvailable ? AppleCloudRepository() : nil
         self.cloud = cloud; engine = cloud.map { SyncEngine(store: store, cloud: $0) }
@@ -60,6 +63,7 @@ final class AppModel {
         await load()
         guard let engine, !syncing else { return }
         syncing = true; status = "Syncing with iCloud…"
+        logger.debug("Starting synchronization")
         defer { syncing = false }
         do {
             try await engine.synchronize()
@@ -69,13 +73,15 @@ final class AppModel {
             if !subscribed, let cloud { try await cloud.subscribe(); subscribed = true }
             let pending = snapshot.pending.count
             status = pending == 0 ? "Up to date with iCloud" : "\(pending) changes waiting to sync"
+            logger.debug("Synchronization completed; pending changes: \(pending, privacy: .public)")
         } catch {
             if error as? LinkinError == .accountChanged { accountBlocked = true }
             status = friendlyCloudError(error)
+            logger.notice("Synchronization deferred; error code: \((error as NSError).code, privacy: .public)")
             failures += 1
             retryTask?.cancel()
             if !accountBlocked {
-                let retryAfter = (error as? CKError)?.retryAfterSeconds ?? min(pow(2, Double(min(failures, 8))), 300)
+                let retryAfter = max(1, (error as? CKError)?.retryAfterSeconds ?? min(pow(2, Double(min(failures, 8))), 300))
                 retryTask = Task { [weak self] in
                     do { try await Task.sleep(for: .seconds(retryAfter)); await self?.refresh() } catch {}
                 }
@@ -83,6 +89,8 @@ final class AppModel {
         }
     }
     func friendlyCloudError(_ error: Error) -> String {
+        if error is CancellationError { return "Sync paused. Your changes are saved on this device." }
+        if error is SyncFailure { return "iCloud couldn’t finish syncing. Your changes are saved and will retry." }
         guard let cloud = error as? CKError else { return error.localizedDescription }
         switch cloud.code {
         case .networkFailure, .networkUnavailable: return "Offline · changes saved on this device"
@@ -107,9 +115,8 @@ final class AppModel {
     func acceptInvitation(_ metadata: CKShare.Metadata) async {
         guard let cloud else { error = "This build needs iCloud configuration before it can accept invitations."; return }
         do {
-            let user = try await cloud.currentUserID()
-            if let bound = snapshot.accountID, bound != user { throw LinkinError.accountChanged }
-            try await cloud.accept(metadata); AppEvents.shared.invitation = nil; await refresh()
+            let bound = try await store.read().accountID
+            try await cloud.accept(metadata, boundAccount: bound); AppEvents.shared.invitation = nil; await refresh()
         } catch { self.error = friendlyCloudError(error) }
     }
     func removeLibrary(_ library: Item) async {
@@ -140,7 +147,7 @@ final class AppModel {
             Task { await refresh() }
             if !Configuration.isUITesting, let url = URL(string: saved["url"]) {
                 Task {
-                    if let metadata = try? await MetadataService.shared.metadata(for: url), title.isEmpty {
+                    if let metadata = try? await self.metadata.metadata(for: url), title.isEmpty {
                         let fetchedTitle = LinkRules.metadataTitle(metadata.title, url: url)
                         await perform {
                             try await store.transaction { state in

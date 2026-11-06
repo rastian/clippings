@@ -63,4 +63,11 @@ final class DomainTests: XCTestCase {
         XCTAssertThrowsError(try SharedInput.url(in: String(repeating: "a", count: 40_000)))
     }
 
+    func testInvitationContainerAndAccountValidation() throws {
+        XCTAssertNoThrow(try InvitationRules.validate(container: "iCloud.linkin", expected: "iCloud.linkin", currentUser: "A", boundUser: "A"))
+        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.other", expected: "iCloud.linkin", currentUser: "A", boundUser: nil))
+        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.linkin", expected: "iCloud.linkin", currentUser: "B", boundUser: "A"))
+        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.linkin", expected: "iCloud.linkin", currentUser: "", boundUser: nil))
+    }
+
 }

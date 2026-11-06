@@ -24,6 +24,7 @@ public actor SyncEngine {
     private let cloud: any CloudRepository
     private var running: Task<Void, Error>?
     public init(store: LocalStore, cloud: any CloudRepository) { self.store = store; self.cloud = cloud }
+    public func cancel() { running?.cancel() }
     public func synchronize() async throws {
         if let running { return try await running.value }
         let task = Task { try await self.run() }
@@ -33,6 +34,7 @@ public actor SyncEngine {
     }
     private func run() async throws {
         let user = try await cloud.currentUserID()
+        try Task.checkCancellation()
         try await store.transaction { state in
             if let previous = state.accountID, previous != user { throw LinkinError.accountChanged }
             if state.accountID == nil {
@@ -49,6 +51,7 @@ public actor SyncEngine {
         let remoteKeys = Set(remoteZones.map { $0.zone.key })
         let initial = try await store.read()
         for zone in initial.zones.values where !remoteKeys.contains(zone.zone.key) && zone.zone.scope == .owned && initial.settings["known:\(zone.zone.key)"] == nil && initial.settings["remove:\(zone.zone.key)"] == nil {
+            guard try await cloud.currentUserID() == user else { throw LinkinError.accountChanged }
             try await cloud.createZone(zone.zone)
         }
         try await store.transaction { state in
@@ -65,6 +68,7 @@ public actor SyncEngine {
         for zoneState in snapshot.zones.values.sorted(by: { $0.zone.key < $1.zone.key }) {
             let zone = zoneState.zone
             if snapshot.settings["remove:\(zone.key)"] != nil {
+                guard try await cloud.currentUserID() == user else { throw LinkinError.accountChanged }
                 try await cloud.remove(zone)
                 try await store.transaction { state in
                     state.items = state.items.filter { $0.value.zone != zone }
@@ -86,6 +90,7 @@ public actor SyncEngine {
                 for item in queued {
                     try Task.checkCancellation()
                     do {
+                        guard try await cloud.currentUserID() == user else { throw LinkinError.accountChanged }
                         let saved = try await cloud.save(item, wasUploaded: current.settings["uploaded:\(item.key)"] == "true")
                         try await store.transaction { state in
                             try state.acknowledge(item, saved: saved)
@@ -106,6 +111,7 @@ public actor SyncEngine {
         var deleted: [String] = []
         var hasMore = true
         while hasMore {
+            try Task.checkCancellation()
             do {
                 let page = try await cloud.changes(in: zone, since: token)
                 items.append(contentsOf: page.items); deleted.append(contentsOf: page.deletedIDs)

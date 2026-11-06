@@ -29,3 +29,11 @@ Mentions are separate records with stable recipient/author IDs. A local notifica
 Private/shared CKDatabaseSubscriptions send content-available pushes with no alert text, sound or badge. The app fetches changes before deciding whether a local alert is relevant. Foreground notifications are not presented over the UI. A remote-fetch callback is completed once, with a twenty-second deadline; the durable queue does not depend on completion. Opening a notification routes to the cached/synced saved link. Invitations use Apple's native CloudKit sharing delivery, not a separate notification service.
 
 APNs, local notification authorization, background scheduling, user force-quit and network access all affect delivery. A notification can be delayed or absent. Foreground and manual refresh always reconcile unread mentions. There is a narrow cross-service crash window between notification scheduling and the local delivery ledger; stable IDs and delivered-request inspection mitigate it, but no exactly-once delivery guarantee is claimed.
+
+## Preview and cache behavior
+
+Preview fetching starts after the URL transaction commits and times out independently. Apple LinkPresentation metadata (title, image/icon providers) is archived securely for seven days, with an 8 MB per-item and 50 MB total cache budget. The regenerable preview directory is excluded from backup; the database containing unsent user changes is not. An arriving preview cannot overwrite a title the user edited while the request was pending. There is no use of private metadata-description APIs or webpage scraping; descriptions are optional user text. Database files use protection until first unlock so allowed background processing can access the durable queue.
+
+## Accessibility
+
+Native navigation, forms, pickers, menus and tabs retain their system semantics. Collection icons have spoken names, icon-only toolbar actions have labels, and link rows combine their title/domain/date for VoiceOver. Empty states scroll at accessibility text sizes and use shorter explanatory copy without reducing the user's font size. The iPad interface uses NavigationSplitView. Both app and extension adapt the evergreen accent for dark appearance.

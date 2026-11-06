@@ -12,6 +12,8 @@ actor CloudDouble: CloudRepository {
     var failWrites = false
     var expireOnce = false
     var saves = 0
+    var changeAccountOnFetch = false
+    func changeAccountDuringFetch() { changeAccountOnFetch = true }
     init(user: String = "A") { self.user = user }
     func currentUserID() -> String { user }
     func setUser(_ value: String) { user = value }
@@ -20,6 +22,7 @@ actor CloudDouble: CloudRepository {
     func listZones() -> [ZoneState] { zones }
     func createZone(_ zone: Zone) { if !zones.contains(where: { $0.zone == zone }) { zones.append(ZoneState(zone: zone)) } }
     func changes(in zone: Zone, since token: Data?) throws -> ChangePage {
+        if changeAccountOnFetch { user = "B"; changeAccountOnFetch = false }
         if expireOnce && token != nil { expireOnce = false; throw SyncFailure.expiredToken }
         return ChangePage(items: storage.values.filter { $0.zone == zone }, token: Data([1]))
     }
@@ -99,4 +102,15 @@ final class SyncTests: XCTestCase {
         XCTAssertEqual(stateA.items[link.key]?.title, "New title")
         XCTAssertEqual(stateA.items[link.key]?["summary"], "New description")
     }
+    func testAccountChangeDuringSyncPreservesOutbox() async throws {
+        let store = store(); let service = LibraryService(store: store); let cloud = CloudDouble()
+        let engine = SyncEngine(store: store, cloud: cloud)
+        _ = try await service.createLibrary(name: "Family", userID: "A")
+        await cloud.changeAccountDuringFetch()
+        do { try await engine.synchronize(); XCTFail("Must stop before uploading under a changed identity") }
+        catch { XCTAssertEqual(error as? LinkinError, .accountChanged) }
+        let remote = await cloud.all(), state = try await store.read()
+        XCTAssertTrue(remote.isEmpty); XCTAssertEqual(state.pending.count, 1)
+    }
+
 }

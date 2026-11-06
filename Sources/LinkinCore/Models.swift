@@ -2,7 +2,7 @@ import Foundation
 
 public enum LinkinError: Error, LocalizedError, Equatable, Sendable {
     case invalidURL, emptyName, missingLibrary, readOnly, incompatibleSchema, accountChanged
-    case storage(String), cloud(String)
+    case storage(String), cloud(String), validation(String)
     public var errorDescription: String? {
         switch self {
         case .invalidURL: "Enter a complete http or https website address."
@@ -11,7 +11,7 @@ public enum LinkinError: Error, LocalizedError, Equatable, Sendable {
         case .readOnly: "You have view-only access to this library."
         case .incompatibleSchema: "This library needs a newer version of linkin. Please update the app."
         case .accountChanged: "Your iCloud account changed. Your previous account’s pending changes are preserved on this device. Sign back in to sync them."
-        case .storage(let message), .cloud(let message): message
+        case .storage(let message), .cloud(let message), .validation(let message): message
         }
     }
 }

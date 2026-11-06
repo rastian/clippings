@@ -25,12 +25,14 @@ jobs:
       - name: Select installed iPhone simulator
         run: |
           python3 scripts/select_simulator.py >> "$GITHUB_ENV"
+      - name: Resolve project dependencies
+        run: xcodebuild -resolvePackageDependencies -project linkin.xcodeproj -scheme linkin
       - name: Build and run unit and UI tests
         run: >-
           xcodebuild test -project linkin.xcodeproj -scheme linkin
           -destination "platform=iOS Simulator,id=$SIMULATOR_ID"
           -derivedDataPath .build-ci -resultBundlePath TestResults.xcresult
-          CODE_SIGNING_ALLOWED=NO
+          -parallel-testing-enabled NO -jobs 2 CODE_SIGNING_ALLOWED=NO
       - uses: actions/upload-artifact@v4
         if: always()
         with:

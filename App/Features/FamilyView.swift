@@ -74,7 +74,7 @@ struct MentionsView: View {
                             .swipeActions { Button("Mark read", systemImage: "checkmark") { Task { await model.perform { try await model.service.markRead(mention, userID: model.userID) } } }.tint(Design.accent) }
                     }
                 }
-            }.overlay { if model.unread.isEmpty { ContentUnavailableView("You’re all caught up", systemImage: "at", description: Text("When someone saves a link with you in mind, you’ll find it here.")) } }
+            }.overlay { if model.unread.isEmpty { ScrollableEmptyState { ContentUnavailableView("You’re all caught up", systemImage: "at", description: Text("When someone saves a link with you in mind, you’ll find it here.")) } } }
                 .navigationTitle("For you").refreshable { await model.refresh() }
         }
     }

@@ -1,4 +1,5 @@
-PRODUCT_BUNDLE_IDENTIFIER = app.linkin.family
+LINKIN_BUNDLE_ID = app.linkin.family
+PRODUCT_BUNDLE_IDENTIFIER = $(LINKIN_BUNDLE_ID)
 LINKIN_CONTAINER = iCloud.app.linkin.family
 LINKIN_APP_GROUP = group.app.linkin.family
 LINKIN_CLOUD_ENABLED = NO

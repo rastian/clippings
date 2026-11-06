@@ -32,16 +32,16 @@ struct LibraryView: View {
                             }
                         }
                     }
-                    Button { addingCollection = true } label: { Label("New collection", systemImage: "folder.badge.plus") }.accessibilityIdentifier("newCollection")
+                    Button { addingCollection = true } label: { Label("New collection", systemImage: "folder.badge.plus") }.accessibilityIdentifier("newCollection").disabled(model.library.map { model.snapshot.zones[$0.zone.key]?.canWrite == false } ?? true)
                 }
                 Section {
-                    Label(model.status, systemImage: model.syncing ? "arrow.triangle.2.circlepath" : "checkmark.icloud").font(.footnote).foregroundStyle(.secondary)
+                    Label(model.status, systemImage: model.syncing ? "arrow.triangle.2.circlepath" : model.cloud == nil ? "internaldrive" : model.status == "Up to date with iCloud" ? "checkmark.icloud" : "icloud.slash").font(.footnote).foregroundStyle(.secondary)
                 }
             }
             .navigationTitle(model.library?.title ?? "Library")
-            .searchable(text: $query, prompt: "Find a collection")
+            .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Find a collection")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) { Button { addingLink = true } label: { Label("Add link", systemImage: "plus") }.accessibilityIdentifier("addLink") }
+                ToolbarItem(placement: .primaryAction) { Button { addingLink = true } label: { Label("Add link", systemImage: "plus") }.accessibilityIdentifier("addLink").disabled(model.library.map { model.snapshot.zones[$0.zone.key]?.canWrite == false } ?? true) }
             }
             .refreshable { await model.refresh() }
         } detail: {
@@ -51,9 +51,9 @@ struct LibraryView: View {
         .sheet(isPresented: $addingLink) { AddLinkView(collection: selection == "all" || selection == "unfiled" ? nil : selection) }
         .sheet(isPresented: $addingCollection) { CollectionEditor() }
         .sheet(item: $editingCollection) { CollectionEditor(item: $0) }
-        .confirmationDialog("Delete this collection? Its links will stay in Unfiled.", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
+        .confirmationDialog("Delete this collection? Its links will stay in Unfiled.", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible, presenting: deleting) { item in
             Button("Delete collection", role: .destructive) {
-                if let item = deleting { Task { await model.perform { try await model.service.delete(item) }; selection = "all" } }
+                Task { await model.perform { try await model.service.delete(item) }; selection = nil }
             }
         }
     }
@@ -89,24 +89,38 @@ struct LinkListView: View {
             }
             .overlay {
                 if links.isEmpty {
-                    if query.isEmpty {
-                        ContentUnavailableView {
-                            Label("A little space for good finds", systemImage: "bookmark")
-                        } description: { Text("Save something you’d love to come back to—or share with your family.") }
-                        actions: { Button("Save your first link") { addingLink = true }.buttonStyle(.borderedProminent) }
-                    } else { ContentUnavailableView.search(text: query) }
+                    ScrollableEmptyState {
+                        if query.isEmpty {
+                            EmptyLibraryMessage(canAdd: model.library.map { model.snapshot.zones[$0.zone.key]?.canWrite != false } ?? false) { addingLink = true }
+                        } else { ContentUnavailableView.search(text: query) }
+                    }
                 }
             }
-            .navigationTitle(title).searchable(text: $query, prompt: "Search links and notes").accessibilityIdentifier("linkList")
+            .navigationTitle(title).searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search links and notes").accessibilityIdentifier("linkList")
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Menu { Picker("Sort links", selection: $oldest) { Text("Newest first").tag(false); Text("Oldest first").tag(true) } } label: { Label("Sort", systemImage: "arrow.up.arrow.down") }
-                    Button { addingLink = true } label: { Label("Add link", systemImage: "plus") }.accessibilityIdentifier("addLinkDetail")
+                    Button { addingLink = true } label: { Label("Add link", systemImage: "plus") }.accessibilityIdentifier("addLinkDetail").disabled(model.library.map { model.snapshot.zones[$0.zone.key]?.canWrite == false } ?? true)
                 }
             }.refreshable { await model.refresh() }
-            .confirmationDialog("Delete this link for everyone?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
-                Button("Delete link", role: .destructive) { if let deleting { Task { await model.perform { try await model.service.delete(deleting) } } } }
+            .confirmationDialog("Delete this link for everyone?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible, presenting: deleting) { item in
+                Button("Delete link", role: .destructive) { Task { await model.perform { try await model.service.delete(item) } } }
             }
+        }
+    }
+}
+
+private struct EmptyLibraryMessage: View {
+    @Environment(\.dynamicTypeSize) private var typeSize
+    let canAdd: Bool
+    let add: () -> Void
+    var body: some View {
+        ContentUnavailableView {
+            Label(typeSize.isAccessibilitySize ? "No links yet" : "A little space for good finds", systemImage: "bookmark")
+        } description: {
+            Text(canAdd ? (typeSize.isAccessibilitySize ? "Save a good find for your family." : "Save something you’d love to come back to—or share with your family.") : "Your family’s saved links will appear here.")
+        } actions: {
+            if canAdd { Button(typeSize.isAccessibilitySize ? "Add a link" : "Save your first link", action: add).buttonStyle(.borderedProminent).accessibilityIdentifier("addFirstLink") }
         }
     }
 }

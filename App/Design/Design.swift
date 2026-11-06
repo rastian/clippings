@@ -3,6 +3,7 @@ import LinkPresentation
 
 enum Design {
     static let accent = Color("AccentColor")
+    static let iconNames = ["folder": "Folder", "fork.knife": "Food", "map": "Places", "bag": "Shopping", "book": "Reading", "play.rectangle": "Videos", "figure.2.and.child.holdinghands": "Family activities", "heart": "Favourites", "house": "Home", "sparkles": "Ideas", "leaf": "Nature", "gift": "Gifts"]
     static let icons = ["folder", "fork.knife", "map", "bag", "book", "play.rectangle", "figure.2.and.child.holdinghands", "heart", "house", "sparkles", "leaf", "gift"]
 }
 struct CollectionBadge: View {
@@ -33,5 +34,17 @@ struct NativeLinkPreview: UIViewRepresentable {
     func updateUIView(_ uiView: LPLinkView, context: Context) { uiView.metadata = metadata }
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: LPLinkView, context: Context) -> CGSize? {
         uiView.sizeThatFits(CGSize(width: proposal.width ?? 300, height: proposal.height ?? 360))
+    }
+}
+
+struct ScrollableEmptyState<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+    var body: some View {
+        GeometryReader { geometry in
+            ScrollView {
+                content().frame(maxWidth: .infinity).frame(minHeight: max(0, geometry.size.height - 32))
+                    .padding(.bottom, 32)
+            }
+        }
     }
 }

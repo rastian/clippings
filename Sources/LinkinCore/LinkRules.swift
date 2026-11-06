@@ -23,20 +23,25 @@ public enum LinkRules {
     public static func name(_ input: String) throws -> String {
         let value = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { throw LinkinError.emptyName }
-        return String(value.prefix(120))
+        return try text(value, limit: 120, label: "Name")
+    }
+    public static func text(_ value: String, limit: Int, label: String) throws -> String {
+        guard value.count <= limit else { throw LinkinError.validation("\(label) can contain up to \(limit) characters. Please shorten it before saving.") }
+        return value
     }
     public static func metadataTitle(_ title: String?, url: URL) -> String {
         let value = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return value.isEmpty ? (url.host() ?? url.absoluteString) : String(value.prefix(500))
     }
     public static func links(in state: Snapshot, zone: Zone, query: String = "", collection: String? = nil, oldestFirst: Bool = false) -> [Item] {
-        let collections = state.visible(.collection, zone: zone)
+        let collections = Dictionary(state.visible(.collection, zone: zone).map { ($0.id, $0.title) }, uniquingKeysWith: { first, _ in first })
+        let notes = Dictionary(state.visible(.note).map { ($0["link"], $0["text"]) }, uniquingKeysWith: { first, _ in first })
         return state.visible(.link, zone: zone).filter { link in
-            let collectionExists = collections.contains { $0.id == link["collection"] }
+            let collectionExists = collections[link["collection"]] != nil
             let matchesCollection = collection == nil || link["collection"] == collection || (collection == "unfiled" && !collectionExists)
-            let note = state.visible(.note).first { $0["link"] == link.key }?["text"] ?? ""
+            let note = notes[link.key] ?? ""
             let text = [link.title, link["url"], link["domain"], link["summary"], note,
-                        collections.first { $0.id == link["collection"] }?.title ?? ""].joined(separator: " ")
+                        collections[link["collection"]] ?? ""].joined(separator: " ")
             return matchesCollection && (query.isEmpty || text.localizedStandardContains(query))
         }.sorted {
             if $0.date == $1.date { return $0.id < $1.id }

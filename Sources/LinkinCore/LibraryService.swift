@@ -24,13 +24,18 @@ public struct LibraryService: Sendable {
     public func saveLink(url: String, title: String = "", collection: String? = nil, library: Item, userID: String,
                          recipients: Set<String> = [], operationID: String = UUID().uuidString, now: Date = Date()) async throws -> Item {
         let validated = try LinkRules.validatedURL(url)
+        let title = try LinkRules.text(title, limit: 500, label: "Title")
         let canonical = try LinkRules.canonical(url)
         return try await store.transaction { state in
             try Self.validateLibrary(library, state: state)
             if let collection, !state.visible(.collection, zone: library.zone).contains(where: { $0.id == collection }) { throw LinkinError.storage("This collection no longer exists. Choose another collection.") }
             let existing = state.visible(.link, zone: library.zone).first { $0["canonical"] == canonical || $0.id == operationID }
             let item: Item
-            if let existing { item = existing }
+            if let existing {
+                if existing.id != operationID && existing["collection"] != (collection ?? "") {
+                    item = state.edit(existing, values: ["collection": collection, "updated": String(now.timeIntervalSince1970)])
+                } else { item = existing }
+            }
             else {
                 item = state.edit(Item(id: operationID, kind: .link, zone: library.zone), values: [
                     "url": validated.absoluteString, "canonical": canonical, "title": LinkRules.metadataTitle(title, url: validated),
@@ -54,7 +59,15 @@ public struct LibraryService: Sendable {
             guard let current = state.items[item.key], !current.deleted else { throw LinkinError.storage("This item has been deleted.") }
             guard state.zones[item.zone.key]?.available != false, state.zones[item.zone.key]?.canWrite != false else { throw LinkinError.readOnly }
             var values = values
-            if let name = values["title"] { values["title"] = try LinkRules.name(name ?? "") }
+            if let name = values["title"] {
+                let trimmed = (name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { throw LinkinError.emptyName }
+                values["title"] = try LinkRules.text(trimmed, limit: item.kind == .link ? 500 : 120, label: "Title")
+            }
+            if let summary = values["summary"] { values["summary"] = try LinkRules.text(summary ?? "", limit: 5_000, label: "Description") }
+            if let selection = values["collection"], let selection, !state.visible(.collection, zone: item.zone).contains(where: { $0.id == selection }) {
+                throw LinkinError.validation("This collection no longer exists. Choose another collection.")
+            }
             _ = state.edit(current, values: values)
         }
     }
@@ -70,9 +83,10 @@ public struct LibraryService: Sendable {
         }
     }
     public func saveNote(for link: Item, text: String, userID: String) async throws {
+        let text = try LinkRules.text(text, limit: 10_000, label: "Note")
         try await store.transaction { state in
             let note = Item(id: "note-" + link.id, kind: .note, zone: Zone(name: "linkin-personal"))
-            _ = state.edit(note, values: ["link": link.key, "text": String(text.prefix(10_000)), "author": userID])
+            _ = state.edit(note, values: ["link": link.key, "text": text, "author": userID])
         }
     }
     public func markRead(_ mention: Item, userID: String) async throws {

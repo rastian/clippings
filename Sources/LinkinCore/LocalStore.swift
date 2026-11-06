@@ -17,6 +17,9 @@ public actor LocalStore {
             throw LinkinError.storage("Could not open your saved links. Please try again.")
         }
         defer { sqlite3_close(db) }
+        #if os(iOS)
+        try FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: url.path)
+        #endif
         sqlite3_busy_timeout(db, 5_000)
         func execute(_ sql: String) throws {
             // journal_mode can return BUSY without invoking SQLite's busy handler when
