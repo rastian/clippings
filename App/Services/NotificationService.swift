@@ -32,7 +32,7 @@ struct AppleMentionNotifier: MentionNotifying {
 
 extension AppleCloudRepository {
     func subscribe() async throws {
-        for (database, id) in [(container.privateCloudDatabase, "linkin-private-v1"), (container.sharedCloudDatabase, "linkin-shared-v1")] {
+        for (database, id) in [(container.privateCloudDatabase, "clippings-private-v1"), (container.sharedCloudDatabase, "clippings-shared-v1")] {
             let subscription = CKDatabaseSubscription(subscriptionID: id)
             let info = CKSubscription.NotificationInfo()
             info.shouldSendContentAvailable = true

@@ -33,7 +33,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         }
     }
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        Logger(subsystem: "app.linkin.family", category: "notifications").notice("Remote notification registration unavailable; foreground sync remains enabled.")
+        Logger(subsystem: "app.clippings.family", category: "notifications").notice("Remote notification registration unavailable; foreground sync remains enabled.")
     }
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let key = response.notification.request.content.userInfo["linkKey"] as? String

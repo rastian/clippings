@@ -3,11 +3,11 @@ import XCTest
 import CloudKit
 import UniformTypeIdentifiers
 import LinkPresentation
-@testable import linkin
+@testable import Clippings
 
 final class AppleMappingTests: XCTestCase {
     func testCloudRecordRoundTripAndSharedZoneMapping() throws {
-        let owned = Zone(name: "linkin-family-test")
+        let owned = Zone(name: "clippings-family-test")
         let shared = Zone(name: owned.name, owner: "owner-ID", scope: .shared)
         let item = Item(id: "link", kind: .link, zone: owned, fields: ["title": Field("A recipe", clock: 3, actor: "device")])
         let record = CKRecord(recordType: RecordCodec.recordType, recordID: CKRecord.ID(recordName: item.id, zoneID: RecordCodec.zoneID(owned)))
@@ -17,7 +17,7 @@ final class AppleMappingTests: XCTestCase {
         XCTAssertEqual(decoded.fields, item.fields)
     }
     func testInvalidRecordAndFutureSchemaDoNotDecode() throws {
-        let zone = Zone(name: "linkin-family-test")
+        let zone = Zone(name: "clippings-family-test")
         let record = CKRecord(recordType: RecordCodec.recordType, recordID: CKRecord.ID(recordName: "item", zoneID: RecordCodec.zoneID(zone)))
         XCTAssertThrowsError(try RecordCodec.decode(record, zone: zone))
         var future = Item(id: "item", kind: .link, zone: zone); future.schema = 99

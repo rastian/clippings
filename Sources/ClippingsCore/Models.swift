@@ -1,6 +1,6 @@
 import Foundation
 
-public enum LinkinError: Error, LocalizedError, Equatable, Sendable {
+public enum ClippingsError: Error, LocalizedError, Equatable, Sendable {
     case invalidURL, emptyName, missingLibrary, readOnly, incompatibleSchema, accountChanged
     case storage(String), cloud(String), validation(String)
     public var errorDescription: String? {
@@ -59,8 +59,8 @@ public struct Item: Codable, Identifiable, Equatable, Sendable {
     public var revision: Int64 { fields.values.map(\.clock).max() ?? 0 }
     public var key: String { "\(zone.key)|\(id)" }
     public func merging(_ remote: Item) throws -> Item {
-        guard schema <= Self.schemaVersion, remote.schema <= Self.schemaVersion else { throw LinkinError.incompatibleSchema }
-        guard id == remote.id, kind == remote.kind else { throw LinkinError.storage("Invalid record identity.") }
+        guard schema <= Self.schemaVersion, remote.schema <= Self.schemaVersion else { throw ClippingsError.incompatibleSchema }
+        guard id == remote.id, kind == remote.kind else { throw ClippingsError.storage("Invalid record identity.") }
         var result = self
         for (key, field) in remote.fields {
             if result.fields[key].map({ field.wins(over: $0) }) ?? true { result.fields[key] = field }
@@ -116,7 +116,7 @@ public struct Snapshot: Codable, Sendable {
     }
     public mutating func receive(_ remote: Item) throws {
         let merged = try items[remote.key]?.merging(remote) ?? remote
-        guard remote.schema <= Item.schemaVersion else { throw LinkinError.incompatibleSchema }
+        guard remote.schema <= Item.schemaVersion else { throw ClippingsError.incompatibleSchema }
         if let queued = pending[remote.key], queued.fields.contains(where: { key, field in
             field.actor == actor && field.clock == queued.revision && merged.fields[key]?.value != field.value
         }) {

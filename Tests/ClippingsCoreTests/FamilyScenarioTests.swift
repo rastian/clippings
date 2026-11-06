@@ -1,8 +1,8 @@
 import XCTest
-#if canImport(LinkinCore)
-@testable import LinkinCore
+#if canImport(ClippingsCore)
+@testable import ClippingsCore
 #else
-@testable import linkin
+@testable import Clippings
 #endif
 
 /// Models owner/private and participant/shared projections. This is not a CloudKit service test.
@@ -17,7 +17,7 @@ actor FamilyServerDouble {
     }
     func accept(zone: Zone, owner: String, participant: String) throws {
         let key = "\(owner)|\(zone.name)"
-        guard libraries[key] != nil else { throw LinkinError.missingLibrary }
+        guard libraries[key] != nil else { throw ClippingsError.missingLibrary }
         libraries[key]?.members[participant] = true
     }
     func zones(user: String) -> [ZoneState] {
@@ -31,13 +31,13 @@ actor FamilyServerDouble {
     }
     func fetch(_ zone: Zone, user: String) throws -> ChangePage {
         let key = zoneKey(zone, user: user)
-        guard libraries[key]?.members[user] != nil else { throw LinkinError.readOnly }
+        guard libraries[key]?.members[user] != nil else { throw ClippingsError.readOnly }
         let found = records.filter { $0.key.hasPrefix(key + "|") }.map { _, item in var item = item; item.zone = zone; return item }
         return ChangePage(items: found, token: Data([1]))
     }
     func save(_ item: Item, user: String) throws -> Item {
         let zoneKey = zoneKey(item.zone, user: user)
-        guard libraries[zoneKey]?.members[user] == true else { throw LinkinError.readOnly }
+        guard libraries[zoneKey]?.members[user] == true else { throw ClippingsError.readOnly }
         let key = zoneKey + "|" + item.id
         var result = try records[key]?.merging(item) ?? item
         records[key] = result; result.zone = item.zone; return result

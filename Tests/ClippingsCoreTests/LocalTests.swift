@@ -1,8 +1,8 @@
 import XCTest
-#if canImport(LinkinCore)
-@testable import LinkinCore
+#if canImport(ClippingsCore)
+@testable import ClippingsCore
 #else
-@testable import linkin
+@testable import Clippings
 #endif
 
 @MainActor
@@ -11,7 +11,7 @@ final class LocalTests: XCTestCase {
     func testPersistenceAndRollback() async throws {
         let store = makeStore()
         try await store.transaction { $0.settings["name"] = "Original" }
-        do { try await store.transaction { state in state.settings["name"] = "Lost"; throw LinkinError.emptyName } } catch {}
+        do { try await store.transaction { state in state.settings["name"] = "Lost"; throw ClippingsError.emptyName } } catch {}
         let reopened = LocalStore(url: store.url)
         let result = try await reopened.read()
         XCTAssertEqual(result.settings["name"], "Original")
@@ -50,14 +50,14 @@ final class LocalTests: XCTestCase {
         XCTAssertTrue(state.items[collection.key]?.deleted == true)
         XCTAssertFalse(state.pending.isEmpty)
         let note = try XCTUnwrap(state.visible(.note).first)
-        XCTAssertEqual(note.zone.name, "linkin-personal")
+        XCTAssertEqual(note.zone.name, "clippings-personal")
     }
     func testReadOnlyAndMissingCollectionFailWithoutWrites() async throws {
         let store = makeStore(); let service = LibraryService(store: store)
         let library = try await service.createLibrary(name: "Family", userID: "A")
         do { _ = try await service.saveLink(url: "https://example.com", collection: "missing", library: library, userID: "A"); XCTFail("Must reject missing collection") } catch {}
         try await store.transaction { $0.zones[library.zone.key]?.canWrite = false }
-        do { _ = try await service.saveLink(url: "https://example.com", library: library, userID: "A"); XCTFail("Must reject read-only write") } catch { XCTAssertEqual(error as? LinkinError, .readOnly) }
+        do { _ = try await service.saveLink(url: "https://example.com", library: library, userID: "A"); XCTFail("Must reject read-only write") } catch { XCTAssertEqual(error as? ClippingsError, .readOnly) }
         let result = try await store.read(); XCTAssertTrue(result.visible(.link).isEmpty)
     }
 }

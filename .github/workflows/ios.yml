@@ -26,10 +26,10 @@ jobs:
         run: |
           python3 scripts/select_simulator.py >> "$GITHUB_ENV"
       - name: Resolve project dependencies
-        run: xcodebuild -resolvePackageDependencies -project linkin.xcodeproj -scheme linkin
+        run: xcodebuild -resolvePackageDependencies -project Clippings.xcodeproj -scheme Clippings
       - name: Build and run unit and UI tests
         run: >-
-          xcodebuild test -project linkin.xcodeproj -scheme linkin
+          xcodebuild test -project Clippings.xcodeproj -scheme Clippings
           -destination "platform=iOS Simulator,id=$SIMULATOR_ID"
           -derivedDataPath .build-ci -resultBundlePath TestResults.xcresult
           -parallel-testing-enabled NO -jobs 2 CODE_SIGNING_ALLOWED=NO

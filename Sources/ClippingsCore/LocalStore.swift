@@ -14,7 +14,7 @@ public actor LocalStore {
         var pointer: OpaquePointer?
         guard sqlite3_open_v2(url.path, &pointer, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, nil) == SQLITE_OK, let db = pointer else {
             if let pointer { sqlite3_close(pointer) }
-            throw LinkinError.storage("Could not open your saved links. Please try again.")
+            throw ClippingsError.storage("Could not open your saved links. Please try again.")
         }
         defer { sqlite3_close(db) }
         #if os(iOS)
@@ -28,11 +28,11 @@ public actor LocalStore {
                 let code = sqlite3_exec(db, sql, nil, nil, nil)
                 if code == SQLITE_OK { return }
                 guard code == SQLITE_BUSY || code == SQLITE_LOCKED else {
-                    throw LinkinError.storage("Your saved links could not be updated. Please try again.")
+                    throw ClippingsError.storage("Your saved links could not be updated. Please try again.")
                 }
                 if attempt < 5 { sqlite3_sleep(Int32(20 * (attempt + 1))) }
             }
-            throw LinkinError.storage("Your library is busy saving another change. Please try again.")
+            throw ClippingsError.storage("Your library is busy saving another change. Please try again.")
         }
         try execute("PRAGMA journal_mode=WAL")
         try execute("PRAGMA synchronous=FULL")
@@ -40,25 +40,25 @@ public actor LocalStore {
         try execute("BEGIN IMMEDIATE")
         do {
             var statement: OpaquePointer?
-            guard sqlite3_prepare_v2(db, "SELECT payload FROM state WHERE id=1", -1, &statement, nil) == SQLITE_OK else { throw LinkinError.storage("Could not read saved links.") }
+            guard sqlite3_prepare_v2(db, "SELECT payload FROM state WHERE id=1", -1, &statement, nil) == SQLITE_OK else { throw ClippingsError.storage("Could not read saved links.") }
             var state = Snapshot()
             let step = sqlite3_step(statement)
             if step == SQLITE_ROW, let bytes = sqlite3_column_blob(statement, 0) {
                 let data = Data(bytes: bytes, count: Int(sqlite3_column_bytes(statement, 0)))
                 do { state = try JSONDecoder().decode(Snapshot.self, from: data) }
-                catch { sqlite3_finalize(statement); throw LinkinError.storage("The local library could not be read. Your data has been preserved; do not reinstall the app.") }
-            } else if step != SQLITE_DONE { sqlite3_finalize(statement); throw LinkinError.storage("Could not read saved links.") }
+                catch { sqlite3_finalize(statement); throw ClippingsError.storage("The local library could not be read. Your data has been preserved; do not reinstall the app.") }
+            } else if step != SQLITE_DONE { sqlite3_finalize(statement); throw ClippingsError.storage("Could not read saved links.") }
             sqlite3_finalize(statement)
-            guard state.version == 1 else { throw LinkinError.incompatibleSchema }
+            guard state.version == 1 else { throw ClippingsError.incompatibleSchema }
             let result = try body(&state)
             let data = try JSONEncoder().encode(state)
-            guard sqlite3_prepare_v2(db, "INSERT OR REPLACE INTO state(id,payload) VALUES(1,?)", -1, &statement, nil) == SQLITE_OK else { throw LinkinError.storage("Could not save your changes.") }
+            guard sqlite3_prepare_v2(db, "INSERT OR REPLACE INTO state(id,payload) VALUES(1,?)", -1, &statement, nil) == SQLITE_OK else { throw ClippingsError.storage("Could not save your changes.") }
             defer { sqlite3_finalize(statement) }
             let code = data.withUnsafeBytes { bytes -> Int32 in
                 sqlite3_bind_blob(statement, 1, bytes.baseAddress, Int32(bytes.count), nil)
                 return sqlite3_step(statement)
             }
-            guard code == SQLITE_DONE else { throw LinkinError.storage("Could not save your changes. Your device may be out of storage.") }
+            guard code == SQLITE_DONE else { throw ClippingsError.storage("Could not save your changes. Your device may be out of storage.") }
             try execute("COMMIT")
             return result
         } catch {

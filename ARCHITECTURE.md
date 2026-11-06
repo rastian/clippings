@@ -6,7 +6,7 @@ CloudKit is the shared source of truth. Each family gets a custom record zone in
 
 The offline store and outbox will use Apple SQLite with WAL and atomic transactions, shared through an App Group. This deliberately avoids competing SwiftData contexts across the host app and extension. Domain values are Codable, Sendable structs. Every changed field has a Lamport clock and device ID: concurrent edits to distinct fields survive; same-field ties resolve lexicographically by device ID. Tombstones dominate edits. Stable record IDs make retries idempotent. Acknowledgements compare the uploaded snapshot with the current outbox before clearing it.
 
-Layers: `Sources/LinkinCore` (models, validation, persistence and synchronization), `App/Services` (Apple adapters), `App/Features` (SwiftUI), and `ShareExtension`. Unit tests use injected cloud and notification adapters. They do not validate real CloudKit.
+Layers: `Sources/ClippingsCore` (models, validation, persistence and synchronization), `App/Services` (Apple adapters), `App/Features` (SwiftUI), and `ShareExtension`. Unit tests use injected cloud and notification adapters. They do not validate real CloudKit.
 
 ## Synchronization and recovery
 
@@ -16,7 +16,7 @@ The Apple adapter uses change-tag-checked writes, refetches and deterministicall
 
 The complete versioned domain record is stored as a CloudKit Bytes field. This preserves per-field clocks without dozens of dynamic CloudKit schema fields. Schema versions above the supported version stop synchronization without acknowledging pending work or advancing tokens. Local schema v1 stores optional recovery fields for backward-compatible additive changes. Future non-additive changes must add an explicit transactional migration, keep the original database, and test upgrade/rollback paths before release.
 
-Private notes reference the local canonical library scope/zone/record key and live in `linkin-personal`, which is never shared. Participant identities come from CKShare user record IDs; names are presentation only. Activities and comments are intentionally omitted from v1 because they are not needed for link management or mention delivery.
+Private notes reference the local canonical library scope/zone/record key and live in `clippings-personal`, which is never shared. Participant identities come from CKShare user record IDs; names are presentation only. Activities and comments are intentionally omitted from v1 because they are not needed for link management or mention delivery.
 
 ## Share Extension
 

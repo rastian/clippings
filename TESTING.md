@@ -3,7 +3,7 @@
 ## Automated tests
 
 - `swift test`: domain and transactional SQLite tests; no account, network or credentials.
-- `xcodebuild test -project linkin.xcodeproj -scheme linkin -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO`: simulator-hosted unit tests and XCUITest.
+- `xcodebuild test -project Clippings.xcodeproj -scheme Clippings -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO`: simulator-hosted unit tests and XCUITest.
 - `python3 scripts/select_simulator.py`: prints a destination ID for an installed iPhone simulator.
 
 Tests use isolated temporary databases and controlled timestamps. The two-connection persistence test models concurrent app/extension access. UI tests start from a dedicated empty store; ordinary user data is not reset.
@@ -30,7 +30,9 @@ Quality milestone, 6 November 2026 (Xcode 26.6, iOS 26.5 simulator):
 - Search over 2,000 links and 2,000 notes averaged about 22–26 ms in local tests. This is a controlled search measurement, not a real-device cloud or storage-throughput claim.
 - Info.plists, entitlements and privacy manifests passed property-list validation. No Swift concurrency warnings remained.
 
-The notification milestone also passed GitHub Actions on macOS: [run 42197241470](https://github.com/rastian/linkin/actions/runs/42197241470). The quality commit triggers the expanded suites; the repository's Actions page is the authority for that commit's result. The portable suite contains 27 tests; the iOS suite adds 5 native-adapter tests.
+The notification milestone also passed GitHub Actions on macOS: [run 42197241470](https://github.com/rastian/clippings/actions/runs/42197241470). The quality commit triggers the expanded suites; the repository's Actions page is the authority for that commit's result. The portable suite contains 27 tests; the iOS suite adds 5 native-adapter tests.
+
+Fresh Clippings identity, 6 November 2026 (Xcode 27.2, iPhone 18 Pro simulator on iOS 27.2): **27 portable tests, 32 iOS unit/integration tests and all 7 UI scenarios passed**. The unsigned Release build also passed for the app and embedded extension. The renamed scheme, test host and modules run with `app.clippings.family`; the built Share Extension uses `app.clippings.family.share`. Both bundles resolve the new CloudKit container and App Group configuration. The current source files and paths contain only the Clippings identity, with no compatibility aliases or data migration. Apple Developer registration and real iCloud/device checks remain separate requirements.
 
 ## Real two-account integration procedure — required before release
 

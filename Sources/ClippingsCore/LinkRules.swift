@@ -7,14 +7,14 @@ public enum LinkRules {
               var parts = URLComponents(string: trimmed),
               let scheme = parts.scheme?.lowercased(), ["http", "https"].contains(scheme),
               let host = parts.host, !host.isEmpty, host.contains("."),
-              parts.user == nil, parts.password == nil else { throw LinkinError.invalidURL }
+              parts.user == nil, parts.password == nil else { throw ClippingsError.invalidURL }
         parts.scheme = scheme; parts.host = host.lowercased()
-        guard let url = parts.url else { throw LinkinError.invalidURL }
+        guard let url = parts.url else { throw ClippingsError.invalidURL }
         return url
     }
     public static func canonical(_ input: String) throws -> String {
         let url = try validatedURL(input)
-        guard var parts = URLComponents(url: url, resolvingAgainstBaseURL: false) else { throw LinkinError.invalidURL }
+        guard var parts = URLComponents(url: url, resolvingAgainstBaseURL: false) else { throw ClippingsError.invalidURL }
         parts.fragment = nil
         if (parts.scheme == "https" && parts.port == 443) || (parts.scheme == "http" && parts.port == 80) { parts.port = nil }
         if parts.path.isEmpty { parts.path = "/" }
@@ -22,11 +22,11 @@ public enum LinkRules {
     }
     public static func name(_ input: String) throws -> String {
         let value = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty else { throw LinkinError.emptyName }
+        guard !value.isEmpty else { throw ClippingsError.emptyName }
         return try text(value, limit: 120, label: "Name")
     }
     public static func text(_ value: String, limit: Int, label: String) throws -> String {
-        guard value.count <= limit else { throw LinkinError.validation("\(label) can contain up to \(limit) characters. Please shorten it before saving.") }
+        guard value.count <= limit else { throw ClippingsError.validation("\(label) can contain up to \(limit) characters. Please shorten it before saving.") }
         return value
     }
     public static func metadataTitle(_ title: String?, url: URL) -> String {

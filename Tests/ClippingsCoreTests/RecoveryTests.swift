@@ -1,12 +1,12 @@
 import XCTest
-#if canImport(LinkinCore)
-@testable import LinkinCore
+#if canImport(ClippingsCore)
+@testable import ClippingsCore
 #else
-@testable import linkin
+@testable import Clippings
 #endif
 
 actor PagedCloudDouble: CloudRepository {
-    let zone = Zone(name: "linkin-family-paged")
+    let zone = Zone(name: "clippings-family-paged")
     var failLastPage = true
     func currentUserID() -> String { "A" }
     func listZones() -> [ZoneState] { [ZoneState(zone: zone)] }
@@ -17,7 +17,7 @@ actor PagedCloudDouble: CloudRepository {
             return ChangePage(items: [item], token: Data([1]), moreComing: true)
         }
         if token == Data([1]) {
-            if failLastPage { throw LinkinError.cloud("Second page failed") }
+            if failLastPage { throw ClippingsError.cloud("Second page failed") }
             let item = Item(id: "link", kind: .link, zone: zone, fields: ["title": Field("Recipe", clock: 2, actor: "a")])
             return ChangePage(items: [item], token: Data([2]))
         }
@@ -60,7 +60,7 @@ final class RecoveryTests: XCTestCase {
         for index in 0..<2_000 {
             let link = Item(id: "link-\(index)", kind: .link, zone: zone, fields: ["title": Field("Recipe \(index)", clock: 1, actor: "a"), "url": Field("https://example.com/\(index)", clock: 1, actor: "a")])
             state.items[link.key] = link
-            let note = Item(id: "note-\(index)", kind: .note, zone: Zone(name: "linkin-personal"), fields: ["link": Field(link.key, clock: 1, actor: "a"), "text": Field(index == 1_999 ? "Grandma’s favourite" : "A note", clock: 1, actor: "a")])
+            let note = Item(id: "note-\(index)", kind: .note, zone: Zone(name: "clippings-personal"), fields: ["link": Field(link.key, clock: 1, actor: "a"), "text": Field(index == 1_999 ? "Grandma’s favourite" : "A note", clock: 1, actor: "a")])
             state.items[note.key] = note
         }
         XCTAssertEqual(LinkRules.links(in: state, zone: zone, query: "grandma").map(\.id), ["link-1999"])

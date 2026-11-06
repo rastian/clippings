@@ -1,6 +1,6 @@
 // Copy this file to Local.xcconfig (ignored by Git).
 DEVELOPMENT_TEAM = YOUR_TEAM_ID
-LINKIN_BUNDLE_ID = app.linkin.family
-LINKIN_CONTAINER = iCloud.app.linkin.family
-LINKIN_APP_GROUP = group.app.linkin.family
-LINKIN_CLOUD_ENABLED = YES
+CLIPPINGS_BUNDLE_ID = app.clippings.family
+CLIPPINGS_CONTAINER = iCloud.app.clippings.family
+CLIPPINGS_APP_GROUP = group.app.clippings.family
+CLIPPINGS_CLOUD_ENABLED = YES

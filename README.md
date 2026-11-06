@@ -17,13 +17,13 @@ A native iPhone and iPad app for keeping the links your family wants to come bac
 
 ## Build and run locally
 
-1. Open `linkin.xcodeproj` in Xcode 26 or newer.
-2. Select the **linkin** scheme and an installed iPhone or iPad simulator.
+1. Open `Clippings.xcodeproj` in Xcode 26 or newer.
+2. Select the **Clippings** scheme and an installed iPhone or iPad simulator.
 3. Run. The default build stores links locally and leaves iCloud disabled until you configure your own Apple Developer resources.
 
 No external packages are required. The committed Xcode project includes the app, Share Extension, unit-test and UI-test targets. Do not use a web server: this is a native iOS app.
 
-The app and Share Extension display as **Clippings**. The existing `linkin` project, scheme, bundle identifiers and storage identifiers are retained so the rename preserves signing configuration and existing data.
+The app, project and main scheme are named **Clippings**. This is a fresh app identity: `app.clippings.family`, with its own Share Extension, App Group, CloudKit container and storage names. No compatibility aliases or data migration are included.
 
 For real family sharing, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig`, enter your registered team/bundle/container/group values, enable cloud access, and follow [CLOUDKIT_SETUP.md](CLOUDKIT_SETUP.md). That local file is ignored by Git. Both app and extension must be provisioned for the same App Group and CloudKit container.
 
@@ -31,7 +31,7 @@ For real family sharing, copy `Config/Local.xcconfig.example` to `Config/Local.x
 
 ```sh
 swift test
-xcodebuild test -project linkin.xcodeproj -scheme linkin \
+xcodebuild test -project Clippings.xcodeproj -scheme Clippings \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 ```
@@ -48,7 +48,7 @@ CloudKit does not promise immediate synchronization or background delivery. Ordi
 
 ## Project guide
 
-- `Sources/LinkinCore`: domain values, validation, SQLite transactions, outbox, sync engine and mention processing.
+- `Sources/ClippingsCore`: domain values, validation, SQLite transactions, outbox, sync engine and mention processing.
 - `App`: SwiftUI features, design assets and Apple service adapters.
 - `ShareExtension`: native share UI and attachment processing.
 - `Tests` / `UITests`: deterministic domain/integration doubles and XCUITest.

@@ -9,9 +9,9 @@
 <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
 <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
 <key>CKSharingSupported</key><true/>
-<key>LinkinCloudEnabled</key><string>$(LINKIN_CLOUD_ENABLED)</string>
-<key>LinkinContainer</key><string>$(LINKIN_CONTAINER)</string>
-<key>LinkinAppGroup</key><string>$(LINKIN_APP_GROUP)</string>
+<key>ClippingsCloudEnabled</key><string>$(CLIPPINGS_CLOUD_ENABLED)</string>
+<key>ClippingsContainer</key><string>$(CLIPPINGS_CONTAINER)</string>
+<key>ClippingsAppGroup</key><string>$(CLIPPINGS_APP_GROUP)</string>
 <key>UIBackgroundModes</key><array><string>remote-notification</string></array>
 <key>UILaunchScreen</key><dict/>
 <key>UISupportedInterfaceOrientations</key><array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>

@@ -36,7 +36,7 @@ public actor SyncEngine {
         let user = try await cloud.currentUserID()
         try Task.checkCancellation()
         try await store.transaction { state in
-            if let previous = state.accountID, previous != user { throw LinkinError.accountChanged }
+            if let previous = state.accountID, previous != user { throw ClippingsError.accountChanged }
             if state.accountID == nil {
                 state.accountID = user
                 for item in Array(state.items.values) {
@@ -51,7 +51,7 @@ public actor SyncEngine {
         let remoteKeys = Set(remoteZones.map { $0.zone.key })
         let initial = try await store.read()
         for zone in initial.zones.values where !remoteKeys.contains(zone.zone.key) && zone.zone.scope == .owned && initial.settings["known:\(zone.zone.key)"] == nil && initial.settings["remove:\(zone.zone.key)"] == nil {
-            guard try await cloud.currentUserID() == user else { throw LinkinError.accountChanged }
+            guard try await cloud.currentUserID() == user else { throw ClippingsError.accountChanged }
             try await cloud.createZone(zone.zone)
         }
         try await store.transaction { state in
@@ -68,7 +68,7 @@ public actor SyncEngine {
         for zoneState in snapshot.zones.values.sorted(by: { $0.zone.key < $1.zone.key }) {
             let zone = zoneState.zone
             if snapshot.settings["remove:\(zone.key)"] != nil {
-                guard try await cloud.currentUserID() == user else { throw LinkinError.accountChanged }
+                guard try await cloud.currentUserID() == user else { throw ClippingsError.accountChanged }
                 try await cloud.remove(zone)
                 try await store.transaction { state in
                     state.items = state.items.filter { $0.value.zone != zone }
@@ -90,7 +90,7 @@ public actor SyncEngine {
                 for item in queued {
                     try Task.checkCancellation()
                     do {
-                        guard try await cloud.currentUserID() == user else { throw LinkinError.accountChanged }
+                        guard try await cloud.currentUserID() == user else { throw ClippingsError.accountChanged }
                         let saved = try await cloud.save(item, wasUploaded: current.settings["uploaded:\(item.key)"] == "true")
                         try await store.transaction { state in
                             try state.acknowledge(item, saved: saved)

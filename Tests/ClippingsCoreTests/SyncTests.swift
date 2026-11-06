@@ -1,8 +1,8 @@
 import XCTest
-#if canImport(LinkinCore)
-@testable import LinkinCore
+#if canImport(ClippingsCore)
+@testable import ClippingsCore
 #else
-@testable import linkin
+@testable import Clippings
 #endif
 
 actor CloudDouble: CloudRepository {
@@ -27,7 +27,7 @@ actor CloudDouble: CloudRepository {
         return ChangePage(items: storage.values.filter { $0.zone == zone }, token: Data([1]))
     }
     func save(_ item: Item, wasUploaded: Bool) throws -> Item {
-        if failWrites { throw LinkinError.cloud("Offline") }
+        if failWrites { throw ClippingsError.cloud("Offline") }
         if wasUploaded && storage[item.key] == nil { throw SyncFailure.removedRecord }
         let saved = try storage[item.key]?.merging(item) ?? item
         storage[item.key] = saved; saves += 1
@@ -84,7 +84,7 @@ final class SyncTests: XCTestCase {
         let engine = SyncEngine(store: store, cloud: cloud)
         _ = try await service.createLibrary(name: "Family", userID: "A"); try await engine.synchronize()
         await cloud.setUser("B")
-        do { try await engine.synchronize(); XCTFail("Must isolate accounts") } catch { XCTAssertEqual(error as? LinkinError, .accountChanged) }
+        do { try await engine.synchronize(); XCTFail("Must isolate accounts") } catch { XCTAssertEqual(error as? ClippingsError, .accountChanged) }
         let state = try await store.read(); XCTAssertEqual(state.accountID, "A")
     }
     func testTwoDevicesConvergeAfterIndependentEdits() async throws {
@@ -108,7 +108,7 @@ final class SyncTests: XCTestCase {
         _ = try await service.createLibrary(name: "Family", userID: "A")
         await cloud.changeAccountDuringFetch()
         do { try await engine.synchronize(); XCTFail("Must stop before uploading under a changed identity") }
-        catch { XCTAssertEqual(error as? LinkinError, .accountChanged) }
+        catch { XCTAssertEqual(error as? ClippingsError, .accountChanged) }
         let remote = await cloud.all(), state = try await store.read()
         XCTAssertTrue(remote.isEmpty); XCTAssertEqual(state.pending.count, 1)
     }

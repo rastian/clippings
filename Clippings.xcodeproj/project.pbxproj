@@ -1,0 +1,655 @@
+// !$*UTF8*$!
+{
+	"archiveVersion" = "1";
+	"classes" = {};
+	"objectVersion" = "71";
+	"objects" = {
+		"DFBA7AADE0868074C2861C98" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Config/App.xcconfig";
+			"sourceTree" = "<group>";
+		};
+		"E00C1AB9CC8D34F04FF6FE23" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.application";
+			"path" = "Clippings.app";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"FC4A695F02A8A53A129DCB9A" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"explicitFileTypes" = {};
+			"explicitFolders" = ();
+			"path" = "App";
+			"sourceTree" = "<group>";
+		};
+		"E3E3643B2B29A076D43EB6C6" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"explicitFileTypes" = {};
+			"explicitFolders" = ();
+			"path" = "Sources/ClippingsCore";
+			"sourceTree" = "<group>";
+		};
+		"FF2835EFF7DB64EE21A8FB62" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"91C9682F5C4EDF96742C52E9" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"29352B3D2114B705ABD7B0C7" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"71C73BFCC41EDCE58843EFF1" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "Clippings";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG";
+				"ENABLE_TESTABILITY" = "YES";
+				"ONLY_ACTIVE_ARCH" = "YES";
+				"INFOPLIST_FILE" = "Config/App-Info.plist";
+				"CODE_SIGN_ENTITLEMENTS" = "Config/App.entitlements";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
+			};
+			"name" = "Debug";
+		};
+		"2D98029F475B05CF7985BF8E" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "Clippings";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "";
+				"ENABLE_TESTABILITY" = "NO";
+				"ONLY_ACTIVE_ARCH" = "NO";
+				"INFOPLIST_FILE" = "Config/App-Info.plist";
+				"CODE_SIGN_ENTITLEMENTS" = "Config/App.entitlements";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
+			};
+			"name" = "Release";
+		};
+		"6C9EAAC7CE824A2747548C3C" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"71C73BFCC41EDCE58843EFF1",
+				"2D98029F475B05CF7985BF8E",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+		};
+		"38E98EB03CDF243F853AFD14" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "6C9EAAC7CE824A2747548C3C";
+			"buildPhases" = (
+				"FF2835EFF7DB64EE21A8FB62",
+				"29352B3D2114B705ABD7B0C7",
+				"91C9682F5C4EDF96742C52E9",
+				"CFFF27C96089B93150F3553B",
+			);
+			"buildRules" = ();
+			"dependencies" = (
+				"C2D3E0857F5B94D842562445",
+			);
+			"fileSystemSynchronizedGroups" = (
+				"E3E3643B2B29A076D43EB6C6",
+				"FC4A695F02A8A53A129DCB9A",
+			);
+			"name" = "Clippings";
+			"productName" = "Clippings";
+			"productReference" = "E00C1AB9CC8D34F04FF6FE23";
+			"productType" = "com.apple.product-type.application";
+		};
+		"64C4B8B0999BAA3C437E87AE" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.cfbundle";
+			"path" = "ClippingsTests.xctest";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"13992D774D418624552A57BE" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"explicitFileTypes" = {};
+			"explicitFolders" = ();
+			"path" = "Tests/ClippingsCoreTests";
+			"sourceTree" = "<group>";
+		};
+		"C0DC40D157DCA618B427983B" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"2898A14CDC7C9B88A9696799" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"CA26C569197BFDF6AA4DB455" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"91534F52AA88DE4C3606622C" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "ClippingsTests";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG";
+				"ENABLE_TESTABILITY" = "YES";
+				"ONLY_ACTIVE_ARCH" = "YES";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(CLIPPINGS_BUNDLE_ID).tests";
+				"TEST_HOST" = "$(BUILT_PRODUCTS_DIR)/Clippings.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Clippings";
+				"BUNDLE_LOADER" = "$(TEST_HOST)";
+			};
+			"name" = "Debug";
+		};
+		"B56FCC5DB5EF63ECB974F29D" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "ClippingsTests";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "";
+				"ENABLE_TESTABILITY" = "NO";
+				"ONLY_ACTIVE_ARCH" = "NO";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(CLIPPINGS_BUNDLE_ID).tests";
+				"TEST_HOST" = "$(BUILT_PRODUCTS_DIR)/Clippings.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Clippings";
+				"BUNDLE_LOADER" = "$(TEST_HOST)";
+			};
+			"name" = "Release";
+		};
+		"F669A433083CE4F715052BF1" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"91534F52AA88DE4C3606622C",
+				"B56FCC5DB5EF63ECB974F29D",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+		};
+		"9809A1382F33E818726E7A31" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "F669A433083CE4F715052BF1";
+			"buildPhases" = (
+				"C0DC40D157DCA618B427983B",
+				"CA26C569197BFDF6AA4DB455",
+				"2898A14CDC7C9B88A9696799",
+			);
+			"buildRules" = ();
+			"dependencies" = (
+				"2000C04FD5F33AD07073078A",
+			);
+			"fileSystemSynchronizedGroups" = (
+				"13992D774D418624552A57BE",
+			);
+			"name" = "ClippingsTests";
+			"productName" = "ClippingsTests";
+			"productReference" = "64C4B8B0999BAA3C437E87AE";
+			"productType" = "com.apple.product-type.bundle.unit-test";
+		};
+		"61B0DC6DFBD69CA5F3674101" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.cfbundle";
+			"path" = "ClippingsUITests.xctest";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"8D5093D2C263EEDEAE2010BE" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"explicitFileTypes" = {};
+			"explicitFolders" = ();
+			"path" = "UITests";
+			"sourceTree" = "<group>";
+		};
+		"2ABF874E7B4F5508E0B6D282" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"70059CB9675F3E7910046730" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"C0460E4C3871DF827A2EB708" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"B172A45692893E7DB55C1CBA" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "ClippingsUITests";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG";
+				"ENABLE_TESTABILITY" = "YES";
+				"ONLY_ACTIVE_ARCH" = "YES";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(CLIPPINGS_BUNDLE_ID).uitests";
+				"TEST_TARGET_NAME" = "Clippings";
+			};
+			"name" = "Debug";
+		};
+		"0AD49F40300F165E39C62B9E" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "ClippingsUITests";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "";
+				"ENABLE_TESTABILITY" = "NO";
+				"ONLY_ACTIVE_ARCH" = "NO";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(CLIPPINGS_BUNDLE_ID).uitests";
+				"TEST_TARGET_NAME" = "Clippings";
+			};
+			"name" = "Release";
+		};
+		"E871C174EFFCA7EABABCF06C" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"B172A45692893E7DB55C1CBA",
+				"0AD49F40300F165E39C62B9E",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+		};
+		"E41B02452907A7673EE4F0C8" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "E871C174EFFCA7EABABCF06C";
+			"buildPhases" = (
+				"2ABF874E7B4F5508E0B6D282",
+				"C0460E4C3871DF827A2EB708",
+				"70059CB9675F3E7910046730",
+			);
+			"buildRules" = ();
+			"dependencies" = (
+				"68091FEC2CB8CF0BA80B5600",
+			);
+			"fileSystemSynchronizedGroups" = (
+				"8D5093D2C263EEDEAE2010BE",
+			);
+			"name" = "ClippingsUITests";
+			"productName" = "ClippingsUITests";
+			"productReference" = "61B0DC6DFBD69CA5F3674101";
+			"productType" = "com.apple.product-type.bundle.ui-testing";
+		};
+		"C5854D97C4F59312E32E6D35" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "98F54143AB4E86B28C3AFEE0";
+			"proxyType" = "1";
+			"remoteGlobalIDString" = "38E98EB03CDF243F853AFD14";
+			"remoteInfo" = "Clippings";
+		};
+		"2000C04FD5F33AD07073078A" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "38E98EB03CDF243F853AFD14";
+			"targetProxy" = "C5854D97C4F59312E32E6D35";
+		};
+		"B0FB264C0E79CB21DF6C0E26" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "98F54143AB4E86B28C3AFEE0";
+			"proxyType" = "1";
+			"remoteGlobalIDString" = "38E98EB03CDF243F853AFD14";
+			"remoteInfo" = "Clippings";
+		};
+		"68091FEC2CB8CF0BA80B5600" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "38E98EB03CDF243F853AFD14";
+			"targetProxy" = "B0FB264C0E79CB21DF6C0E26";
+		};
+		"14E46F3828FF005172ADE396" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.app-extension";
+			"path" = "ClippingsShare.appex";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"65016353700F4038A0159B29" = {
+			"isa" = "PBXFileSystemSynchronizedRootGroup";
+			"explicitFileTypes" = {};
+			"explicitFolders" = ();
+			"path" = "ShareExtension";
+			"sourceTree" = "<group>";
+		};
+		"D9B80E59C327D75FED57E9A5" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"E2FE77657EF0B2DD91EF4446",
+				"A263B82766DAF8AA8A43066B",
+				"11C7F55145EBB5BAACD21DA5",
+				"729168160B2464D695C6437F",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"F21D37C01EAF2A4C0F330DCD" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"E4737EDF60595C3A556D5DA6" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"A2A0A16D0CC0D3BCD8F107D3" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "ClippingsShare";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG";
+				"ENABLE_TESTABILITY" = "YES";
+				"ONLY_ACTIVE_ARCH" = "YES";
+				"INFOPLIST_FILE" = "Config/Share-Info.plist";
+				"CODE_SIGN_ENTITLEMENTS" = "Config/Share.entitlements";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(CLIPPINGS_BUNDLE_ID).share";
+				"APPLICATION_EXTENSION_API_ONLY" = "YES";
+				"SKIP_INSTALL" = "YES";
+			};
+			"name" = "Debug";
+		};
+		"20F0AC6BD45C352447367338" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "DFBA7AADE0868074C2861C98";
+			"buildSettings" = {
+				"SDKROOT" = "iphoneos";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"PRODUCT_NAME" = "ClippingsShare";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "";
+				"ENABLE_TESTABILITY" = "NO";
+				"ONLY_ACTIVE_ARCH" = "NO";
+				"INFOPLIST_FILE" = "Config/Share-Info.plist";
+				"CODE_SIGN_ENTITLEMENTS" = "Config/Share.entitlements";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(CLIPPINGS_BUNDLE_ID).share";
+				"APPLICATION_EXTENSION_API_ONLY" = "YES";
+				"SKIP_INSTALL" = "YES";
+			};
+			"name" = "Release";
+		};
+		"C809263990820B9E50475BBA" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"A2A0A16D0CC0D3BCD8F107D3",
+				"20F0AC6BD45C352447367338",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+		};
+		"854BE7B8BEDB22D2D7AFCBAD" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "C809263990820B9E50475BBA";
+			"buildPhases" = (
+				"D9B80E59C327D75FED57E9A5",
+				"E4737EDF60595C3A556D5DA6",
+				"F21D37C01EAF2A4C0F330DCD",
+			);
+			"buildRules" = ();
+			"dependencies" = ();
+			"fileSystemSynchronizedGroups" = (
+				"65016353700F4038A0159B29",
+				"E3E3643B2B29A076D43EB6C6",
+			);
+			"name" = "ClippingsShare";
+			"productName" = "ClippingsShare";
+			"productReference" = "14E46F3828FF005172ADE396";
+			"productType" = "com.apple.product-type.app-extension";
+		};
+		"5875D422C6728E46EE1AA405" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "App/Services/Configuration.swift";
+			"sourceTree" = "<group>";
+		};
+		"E2FE77657EF0B2DD91EF4446" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5875D422C6728E46EE1AA405";
+		};
+		"BD58D68EC5095AB706BEAD54" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "App/Services/CloudRepository.swift";
+			"sourceTree" = "<group>";
+		};
+		"A263B82766DAF8AA8A43066B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BD58D68EC5095AB706BEAD54";
+		};
+		"9AACCEDD1C6C9AFA9027F87E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "App/Services/RecordCodec.swift";
+			"sourceTree" = "<group>";
+		};
+		"11C7F55145EBB5BAACD21DA5" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "9AACCEDD1C6C9AFA9027F87E";
+		};
+		"6DE44DF5DCFF26E97EB99889" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "App/Services/AttachmentReader.swift";
+			"sourceTree" = "<group>";
+		};
+		"729168160B2464D695C6437F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6DE44DF5DCFF26E97EB99889";
+		};
+		"0B3F581DB417A87A075BD40D" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "98F54143AB4E86B28C3AFEE0";
+			"proxyType" = "1";
+			"remoteGlobalIDString" = "854BE7B8BEDB22D2D7AFCBAD";
+			"remoteInfo" = "ClippingsShare";
+		};
+		"C2D3E0857F5B94D842562445" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "854BE7B8BEDB22D2D7AFCBAD";
+			"targetProxy" = "0B3F581DB417A87A075BD40D";
+		};
+		"CF9CB0C6CBDDC53D7FC270AA" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "14E46F3828FF005172ADE396";
+			"settings" = {
+				"ATTRIBUTES" = (
+					"RemoveHeadersOnCopy",
+				);
+			};
+		};
+		"CFFF27C96089B93150F3553B" = {
+			"isa" = "PBXCopyFilesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"dstPath" = "";
+			"dstSubfolderSpec" = "13";
+			"files" = (
+				"CF9CB0C6CBDDC53D7FC270AA",
+			);
+			"name" = "Embed Foundation Extensions";
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"FBDC4F23F93125BBEEAE800C" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"E00C1AB9CC8D34F04FF6FE23",
+				"64C4B8B0999BAA3C437E87AE",
+				"61B0DC6DFBD69CA5F3674101",
+				"14E46F3828FF005172ADE396",
+			);
+			"name" = "Products";
+			"sourceTree" = "<group>";
+		};
+		"B28B7AF69320201D1CF206EB" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"FC4A695F02A8A53A129DCB9A",
+				"E3E3643B2B29A076D43EB6C6",
+				"13992D774D418624552A57BE",
+				"8D5093D2C263EEDEAE2010BE",
+				"65016353700F4038A0159B29",
+				"5875D422C6728E46EE1AA405",
+				"BD58D68EC5095AB706BEAD54",
+				"9AACCEDD1C6C9AFA9027F87E",
+				"6DE44DF5DCFF26E97EB99889",
+				"DFBA7AADE0868074C2861C98",
+				"FBDC4F23F93125BBEEAE800C",
+			);
+			"sourceTree" = "<group>";
+		};
+		"89E1FD6268CC0F221A2BE178" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"CLANG_ENABLE_MODULES" = "YES";
+				"CLANG_ENABLE_OBJC_ARC" = "YES";
+				"SWIFT_VERSION" = "6.0";
+				"SWIFT_STRICT_CONCURRENCY" = "complete";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf";
+				"CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING" = "YES";
+				"CLANG_WARN_BOOL_CONVERSION" = "YES";
+				"CLANG_WARN_COMMA" = "YES";
+				"CLANG_WARN_CONSTANT_CONVERSION" = "YES";
+				"CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS" = "YES";
+				"CLANG_WARN_EMPTY_BODY" = "YES";
+				"CLANG_WARN_ENUM_CONVERSION" = "YES";
+				"CLANG_WARN_INFINITE_RECURSION" = "YES";
+				"CLANG_WARN_INT_CONVERSION" = "YES";
+				"CLANG_WARN_NON_LITERAL_NULL_CONVERSION" = "YES";
+				"CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF" = "YES";
+				"CLANG_WARN_OBJC_LITERAL_CONVERSION" = "YES";
+				"CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER" = "YES";
+				"CLANG_WARN_RANGE_LOOP_ANALYSIS" = "YES";
+				"CLANG_WARN_STRICT_PROTOTYPES" = "YES";
+				"CLANG_WARN_SUSPICIOUS_MOVE" = "YES";
+				"CLANG_WARN_UNREACHABLE_CODE" = "YES";
+				"CLANG_WARN__DUPLICATE_METHOD_MATCH" = "YES";
+				"DEAD_CODE_STRIPPING" = "YES";
+				"ENABLE_STRICT_OBJC_MSGSEND" = "YES";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "YES";
+				"GCC_NO_COMMON_BLOCKS" = "YES";
+				"GCC_WARN_64_TO_32_BIT_CONVERSION" = "YES";
+				"GCC_WARN_ABOUT_RETURN_TYPE" = "YES";
+				"GCC_WARN_UNDECLARED_SELECTOR" = "YES";
+				"GCC_WARN_UNINITIALIZED_AUTOS" = "YES";
+				"GCC_WARN_UNUSED_FUNCTION" = "YES";
+				"GCC_WARN_UNUSED_VARIABLE" = "YES";
+				"STRING_CATALOG_GENERATE_SYMBOLS" = "YES";
+				"ENABLE_TESTABILITY" = "YES";
+				"ONLY_ACTIVE_ARCH" = "YES";
+			};
+			"name" = "Debug";
+		};
+		"E6DE6C99132752C914FEF632" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"CLANG_ENABLE_MODULES" = "YES";
+				"CLANG_ENABLE_OBJC_ARC" = "YES";
+				"SWIFT_VERSION" = "6.0";
+				"SWIFT_STRICT_CONCURRENCY" = "complete";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf-with-dsym";
+				"CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING" = "YES";
+				"CLANG_WARN_BOOL_CONVERSION" = "YES";
+				"CLANG_WARN_COMMA" = "YES";
+				"CLANG_WARN_CONSTANT_CONVERSION" = "YES";
+				"CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS" = "YES";
+				"CLANG_WARN_EMPTY_BODY" = "YES";
+				"CLANG_WARN_ENUM_CONVERSION" = "YES";
+				"CLANG_WARN_INFINITE_RECURSION" = "YES";
+				"CLANG_WARN_INT_CONVERSION" = "YES";
+				"CLANG_WARN_NON_LITERAL_NULL_CONVERSION" = "YES";
+				"CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF" = "YES";
+				"CLANG_WARN_OBJC_LITERAL_CONVERSION" = "YES";
+				"CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER" = "YES";
+				"CLANG_WARN_RANGE_LOOP_ANALYSIS" = "YES";
+				"CLANG_WARN_STRICT_PROTOTYPES" = "YES";
+				"CLANG_WARN_SUSPICIOUS_MOVE" = "YES";
+				"CLANG_WARN_UNREACHABLE_CODE" = "YES";
+				"CLANG_WARN__DUPLICATE_METHOD_MATCH" = "YES";
+				"DEAD_CODE_STRIPPING" = "YES";
+				"ENABLE_STRICT_OBJC_MSGSEND" = "YES";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "YES";
+				"GCC_NO_COMMON_BLOCKS" = "YES";
+				"GCC_WARN_64_TO_32_BIT_CONVERSION" = "YES";
+				"GCC_WARN_ABOUT_RETURN_TYPE" = "YES";
+				"GCC_WARN_UNDECLARED_SELECTOR" = "YES";
+				"GCC_WARN_UNINITIALIZED_AUTOS" = "YES";
+				"GCC_WARN_UNUSED_FUNCTION" = "YES";
+				"GCC_WARN_UNUSED_VARIABLE" = "YES";
+				"STRING_CATALOG_GENERATE_SYMBOLS" = "YES";
+				"SWIFT_COMPILATION_MODE" = "wholemodule";
+			};
+			"name" = "Release";
+		};
+		"862894B703A6DEDF96A9DD6C" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"89E1FD6268CC0F221A2BE178",
+				"E6DE6C99132752C914FEF632",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+		};
+		"98F54143AB4E86B28C3AFEE0" = {
+			"isa" = "PBXProject";
+			"attributes" = {
+				"BuildIndependentTargetsInParallel" = "YES";
+				"LastUpgradeCheck" = "2660";
+			};
+			"buildConfigurationList" = "862894B703A6DEDF96A9DD6C";
+			"compatibilityVersion" = "Xcode 16.0";
+			"developmentRegion" = "en";
+			"hasScannedForEncodings" = "0";
+			"knownRegions" = (
+				"en",
+				"Base",
+			);
+			"mainGroup" = "B28B7AF69320201D1CF206EB";
+			"productRefGroup" = "FBDC4F23F93125BBEEAE800C";
+			"projectDirPath" = "";
+			"projectRoot" = "";
+			"targets" = (
+				"38E98EB03CDF243F853AFD14",
+				"9809A1382F33E818726E7A31",
+				"E41B02452907A7673EE4F0C8",
+				"854BE7B8BEDB22D2D7AFCBAD",
+			);
+		};
+	};
+	"rootObject" = "98F54143AB4E86B28C3AFEE0";
+}

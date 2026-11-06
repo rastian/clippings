@@ -2,7 +2,7 @@ import SwiftUI
 import CloudKit
 
 @main
-struct LinkinApp: App {
+struct ClippingsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var model = AppModel()
     @Environment(\.scenePhase) private var scenePhase

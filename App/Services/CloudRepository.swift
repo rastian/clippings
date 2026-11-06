@@ -8,21 +8,21 @@ struct AppleCloudRepository: CloudRepository {
     func currentUserID() async throws -> String {
         switch try await container.accountStatus() {
         case .available: return try await container.userRecordID().recordName
-        case .noAccount: throw LinkinError.cloud("Sign in to iCloud in Settings to share with your family. Your saved links are still on this device.")
-        case .restricted: throw LinkinError.cloud("iCloud access is restricted on this device. Check your device or family restrictions.")
-        case .temporarilyUnavailable, .couldNotDetermine: throw LinkinError.cloud("iCloud is temporarily unavailable. Your changes are saved and will retry.")
-        @unknown default: throw LinkinError.cloud("iCloud is unavailable. Please try again later.")
+        case .noAccount: throw ClippingsError.cloud("Sign in to iCloud in Settings to share with your family. Your saved links are still on this device.")
+        case .restricted: throw ClippingsError.cloud("iCloud access is restricted on this device. Check your device or family restrictions.")
+        case .temporarilyUnavailable, .couldNotDetermine: throw ClippingsError.cloud("iCloud is temporarily unavailable. Your changes are saved and will retry.")
+        @unknown default: throw ClippingsError.cloud("iCloud is unavailable. Please try again later.")
         }
     }
     func listZones() async throws -> [ZoneState] {
         var result: [ZoneState] = []
         for scope in [DatabaseScope.owned, .shared] {
             let database = scope == .owned ? container.privateCloudDatabase : container.sharedCloudDatabase
-            for remote in try await database.allRecordZones() where remote.zoneID.zoneName.hasPrefix("linkin-family-") || (scope == .owned && remote.zoneID.zoneName == "linkin-personal") {
+            for remote in try await database.allRecordZones() where remote.zoneID.zoneName.hasPrefix("clippings-family-") || (scope == .owned && remote.zoneID.zoneName == "clippings-personal") {
                 let zone = Zone(name: remote.zoneID.zoneName, owner: scope == .owned ? "__defaultOwner__" : remote.zoneID.ownerName, scope: scope)
                 var state = ZoneState(zone: zone)
                 if let shareReference = remote.share {
-                    guard let share = try await database.record(for: shareReference.recordID) as? CKShare else { throw LinkinError.cloud("The family sharing information could not be read.") }
+                    guard let share = try await database.record(for: shareReference.recordID) as? CKShare else { throw ClippingsError.cloud("The family sharing information could not be read.") }
                     state.members = share.participants.compactMap { participant in
                         guard let id = participant.userIdentity.userRecordID?.recordName else { return nil }
                         let name = participant.userIdentity.nameComponents.map { PersonNameComponentsFormatter.localizedString(from: $0, style: .short) } ?? "Family member"
@@ -37,7 +37,7 @@ struct AppleCloudRepository: CloudRepository {
         return result
     }
     func createZone(_ zone: Zone) async throws {
-        guard zone.scope == .owned else { throw LinkinError.readOnly }
+        guard zone.scope == .owned else { throw ClippingsError.readOnly }
         _ = try await container.privateCloudDatabase.save(CKRecordZone(zoneID: RecordCodec.zoneID(zone)))
     }
     func changes(in zone: Zone, since token: Data?) async throws -> ChangePage {
@@ -68,7 +68,7 @@ struct AppleCloudRepository: CloudRepository {
             try RecordCodec.apply(merged, to: record)
             do {
                 let result = try await database.modifyRecords(saving: [record], deleting: [], savePolicy: .ifServerRecordUnchanged, atomically: true)
-                guard let saved = result.saveResults[id] else { throw LinkinError.cloud("iCloud did not confirm this save. It will be retried.") }
+                guard let saved = result.saveResults[id] else { throw ClippingsError.cloud("iCloud did not confirm this save. It will be retried.") }
                 return try RecordCodec.decode(saved.get(), zone: item.zone)
             } catch let error as CKError where error.code == .serverRecordChanged { continue }
         }
@@ -88,7 +88,7 @@ struct AppleCloudRepository: CloudRepository {
         let database = database(library.zone)
         let zone = try await database.recordZone(for: RecordCodec.zoneID(library.zone))
         if let ref = zone.share, let share = try await database.record(for: ref.recordID) as? CKShare { return share }
-        guard library.zone.scope == .owned else { throw LinkinError.readOnly }
+        guard library.zone.scope == .owned else { throw ClippingsError.readOnly }
         let share = CKShare(recordZoneID: zone.zoneID)
         share[CKShare.SystemFieldKey.title] = library.title as CKRecordValue
         share.publicPermission = .none
@@ -103,7 +103,7 @@ struct AppleCloudRepository: CloudRepository {
         let user = try await currentUserID()
         try InvitationRules.validate(container: metadata.containerIdentifier, expected: container.containerIdentifier ?? "", currentUser: user, boundUser: boundAccount)
         let result = try await container.accept([metadata])
-        guard let accepted = result[metadata] else { throw LinkinError.cloud("iCloud did not confirm your invitation. Try opening it again.") }
+        guard let accepted = result[metadata] else { throw ClippingsError.cloud("iCloud did not confirm your invitation. Try opening it again.") }
         _ = try accepted.get()
     }
 }

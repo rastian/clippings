@@ -1,8 +1,8 @@
 import XCTest
-#if canImport(LinkinCore)
-@testable import LinkinCore
+#if canImport(ClippingsCore)
+@testable import ClippingsCore
 #else
-@testable import linkin
+@testable import Clippings
 #endif
 
 actor NotificationDouble: MentionNotifying {
@@ -11,7 +11,7 @@ actor NotificationDouble: MentionNotifying {
     var fail = false
     var calls = 0
     func schedule(id: String, linkKey: String) throws -> Bool {
-        if fail { throw LinkinError.cloud("Notification error") }
+        if fail { throw ClippingsError.cloud("Notification error") }
         if !allowed { return false }
         ids.insert(id); calls += 1; return true
     }
@@ -51,9 +51,9 @@ final class MentionTests: XCTestCase {
         try await service.markRead(mention, userID: "B")
         let state = try await store.read()
         XCTAssertTrue(LinkRules.unreadMentions(in: state, userID: "B").isEmpty)
-        XCTAssertEqual(state.visible(.receipt).first?.zone.name, "linkin-personal")
+        XCTAssertEqual(state.visible(.receipt).first?.zone.name, "clippings-personal")
         XCTAssertEqual(state.items[mention.key]?["read"], "false")
-        do { try await service.markRead(mention, userID: "A"); XCTFail("Wrong recipient") } catch { XCTAssertEqual(error as? LinkinError, .readOnly) }
+        do { try await service.markRead(mention, userID: "A"); XCTFail("Wrong recipient") } catch { XCTAssertEqual(error as? ClippingsError, .readOnly) }
     }
     func testPermissionDenialAndSchedulingFailurePreserveUnread() async throws {
         let (store, _, _, _) = try await fixture()

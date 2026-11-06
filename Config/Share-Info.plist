@@ -8,9 +8,9 @@
 <key>CFBundlePackageType</key><string>XPC!</string>
 <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
 <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
-<key>LinkinContainer</key><string>$(LINKIN_CONTAINER)</string>
-<key>LinkinAppGroup</key><string>$(LINKIN_APP_GROUP)</string>
-<key>LinkinCloudEnabled</key><string>$(LINKIN_CLOUD_ENABLED)</string>
+<key>ClippingsContainer</key><string>$(CLIPPINGS_CONTAINER)</string>
+<key>ClippingsAppGroup</key><string>$(CLIPPINGS_APP_GROUP)</string>
+<key>ClippingsCloudEnabled</key><string>$(CLIPPINGS_CLOUD_ENABLED)</string>
 <key>NSExtension</key><dict>
 <key>NSExtensionPointIdentifier</key><string>com.apple.share-services</string>
 <key>NSExtensionPrincipalClass</key><string>$(PRODUCT_MODULE_NAME).ShareViewController</string>

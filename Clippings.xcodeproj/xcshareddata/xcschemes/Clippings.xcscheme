@@ -3,28 +3,28 @@
    <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES">
       <BuildActionEntries>
          <BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="YES" buildForArchiving="YES" buildForAnalyzing="YES">
-            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="3AE52F9BFFC2909CF5EA8342" BuildableName="linkin.app" BlueprintName="linkin" ReferencedContainer="container:linkin.xcodeproj" />
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="38E98EB03CDF243F853AFD14" BuildableName="Clippings.app" BlueprintName="Clippings" ReferencedContainer="container:Clippings.xcodeproj" />
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES">
       <Testables>
          <TestableReference skipped="NO">
-            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="E62B471618AFE0E3FC4BA67B" BuildableName="linkinTests.xctest" BlueprintName="linkinTests" ReferencedContainer="container:linkin.xcodeproj" />
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="9809A1382F33E818726E7A31" BuildableName="ClippingsTests.xctest" BlueprintName="ClippingsTests" ReferencedContainer="container:Clippings.xcodeproj" />
          </TestableReference>
          <TestableReference skipped="NO">
-            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="BAB694384B07CCFE2651E2E1" BuildableName="linkinUITests.xctest" BlueprintName="linkinUITests" ReferencedContainer="container:linkin.xcodeproj" />
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="E41B02452907A7673EE4F0C8" BuildableName="ClippingsUITests.xctest" BlueprintName="ClippingsUITests" ReferencedContainer="container:Clippings.xcodeproj" />
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="YES">
       <BuildableProductRunnable runnableDebuggingMode="0">
-         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="3AE52F9BFFC2909CF5EA8342" BuildableName="linkin.app" BlueprintName="linkin" ReferencedContainer="container:linkin.xcodeproj" />
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="38E98EB03CDF243F853AFD14" BuildableName="Clippings.app" BlueprintName="Clippings" ReferencedContainer="container:Clippings.xcodeproj" />
       </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction buildConfiguration="Release" shouldUseLaunchSchemeArgsEnv="YES" savedToolIdentifier="" useCustomWorkingDirectory="NO" debugDocumentVersioning="YES">
       <BuildableProductRunnable runnableDebuggingMode="0">
-         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="3AE52F9BFFC2909CF5EA8342" BuildableName="linkin.app" BlueprintName="linkin" ReferencedContainer="container:linkin.xcodeproj" />
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="38E98EB03CDF243F853AFD14" BuildableName="Clippings.app" BlueprintName="Clippings" ReferencedContainer="container:Clippings.xcodeproj" />
       </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction buildConfiguration="Debug" />

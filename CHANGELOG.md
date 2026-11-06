@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.0.0 — in development
-- Renamed the app and Share Extension to Clippings, including onboarding, notifications, settings and recovery exports. Existing app and storage identifiers are preserved.
+- Established Clippings throughout the app, Xcode project, Swift modules, tests, app identifiers, CloudKit schema, local storage, notifications and documentation. This prelaunch app uses a fresh identity without migration or compatibility code.
 - Adopted Xcode's recommended shared build settings and updated the project generator to preserve them. Personal signing configuration stays in the ignored local configuration file.
 - Foundation: native Xcode project, Swift 6 domain, deterministic conflicts and URL validation, initial tests and macOS CI.
 - Local app: durable SQLite store and outbox, library and collection management, URL saving, search and sorting, private notes, cached LinkPresentation previews, adaptive native navigation and original app icon.

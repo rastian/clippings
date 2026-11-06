@@ -1,7 +1,7 @@
 import XCTest
 
 @MainActor
-final class LinkinUITests: XCTestCase {
+final class ClippingsUITests: XCTestCase {
     let app = XCUIApplication()
     let standardArguments = ["--ui-testing", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     override func setUp() async throws {
@@ -44,7 +44,7 @@ final class LinkinUITests: XCTestCase {
     }
 }
 
-extension LinkinUITests {
+extension ClippingsUITests {
     func addLink(title: String = "Weekend pasta", url: String = "https://example.com/pasta", detail: Bool = false) {
         app.buttons[detail ? "addLinkDetail" : "addLink"].tap()
         app.textFields["linkURL"].tap(); app.textFields["linkURL"].typeText(url)

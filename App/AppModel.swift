@@ -9,7 +9,7 @@ final class AppModel {
     let store: LocalStore
     let service: LibraryService
     private let metadata: any MetadataProviding
-    private let logger = Logger(subsystem: "app.linkin.family", category: "sync")
+    private let logger = Logger(subsystem: "app.clippings.family", category: "sync")
     var snapshot = Snapshot()
     var selectedLibraryKey: String?
     var error: String?
@@ -48,7 +48,7 @@ final class AppModel {
             monitor.pathUpdateHandler = { [weak self] path in
                 if path.status == .satisfied { Task { @MainActor in await self?.refresh() } }
             }
-            monitor.start(queue: DispatchQueue(label: "app.linkin.connectivity")); networkMonitor = monitor
+            monitor.start(queue: DispatchQueue(label: "app.clippings.connectivity")); networkMonitor = monitor
         }
         await refresh()
     }
@@ -75,7 +75,7 @@ final class AppModel {
             status = pending == 0 ? "Up to date with iCloud" : "\(pending) changes waiting to sync"
             logger.debug("Synchronization completed; pending changes: \(pending, privacy: .public)")
         } catch {
-            if error as? LinkinError == .accountChanged { accountBlocked = true }
+            if error as? ClippingsError == .accountChanged { accountBlocked = true }
             status = friendlyCloudError(error)
             logger.notice("Synchronization deferred; error code: \((error as NSError).code, privacy: .public)")
             failures += 1
@@ -108,7 +108,7 @@ final class AppModel {
         do {
             // Do not offer an invitation before the library has reached its owner’s database.
             let state = try await store.read()
-            guard state.pending[library.key] == nil else { throw LinkinError.cloud("The library must finish syncing before you can invite your family. Try again when you’re online.") }
+            guard state.pending[library.key] == nil else { throw ClippingsError.cloud("The library must finish syncing before you can invite your family. Try again when you’re online.") }
             sharingSheet = SharingSheet(share: try await cloud.sharingRecord(for: library), container: cloud.container, title: library.title)
         } catch { self.error = friendlyCloudError(error) }
     }

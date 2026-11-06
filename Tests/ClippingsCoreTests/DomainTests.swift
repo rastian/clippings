@@ -1,8 +1,8 @@
 import XCTest
-#if canImport(LinkinCore)
-@testable import LinkinCore
+#if canImport(ClippingsCore)
+@testable import ClippingsCore
 #else
-@testable import linkin
+@testable import Clippings
 #endif
 
 final class DomainTests: XCTestCase {
@@ -64,10 +64,10 @@ final class DomainTests: XCTestCase {
     }
 
     func testInvitationContainerAndAccountValidation() throws {
-        XCTAssertNoThrow(try InvitationRules.validate(container: "iCloud.linkin", expected: "iCloud.linkin", currentUser: "A", boundUser: "A"))
-        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.other", expected: "iCloud.linkin", currentUser: "A", boundUser: nil))
-        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.linkin", expected: "iCloud.linkin", currentUser: "B", boundUser: "A"))
-        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.linkin", expected: "iCloud.linkin", currentUser: "", boundUser: nil))
+        XCTAssertNoThrow(try InvitationRules.validate(container: "iCloud.clippings", expected: "iCloud.clippings", currentUser: "A", boundUser: "A"))
+        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.other", expected: "iCloud.clippings", currentUser: "A", boundUser: nil))
+        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.clippings", expected: "iCloud.clippings", currentUser: "B", boundUser: "A"))
+        XCTAssertThrowsError(try InvitationRules.validate(container: "iCloud.clippings", expected: "iCloud.clippings", currentUser: "", boundUser: nil))
     }
 
 }
