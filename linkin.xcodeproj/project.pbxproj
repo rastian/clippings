@@ -360,7 +360,6 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = Config/Share.entitlements;
-				DEVELOPMENT_TEAM = "";
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = "Config/Share-Info.plist";
 				ONLY_ACTIVE_ARCH = YES;
@@ -398,7 +397,6 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = Config/Share.entitlements;
-				DEVELOPMENT_TEAM = "";
 				ENABLE_TESTABILITY = NO;
 				INFOPLIST_FILE = "Config/Share-Info.plist";
 				ONLY_ACTIVE_ARCH = NO;
