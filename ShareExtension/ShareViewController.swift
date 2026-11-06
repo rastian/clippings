@@ -114,7 +114,7 @@ struct ShareForm: View {
                             }
                         }
                         if let library = model.library {
-                            let members = model.snapshot.zones[library.zone.key]?.members.filter { $0.id != model.userID } ?? []
+                            let members = model.snapshot.zones[library.zone.key]?.libraryMembers.filter { $0.id != model.userID } ?? []
                             if !members.isEmpty {
                                 Section("Mention someone") {
                                     ForEach(members) { member in

@@ -22,11 +22,11 @@ struct AddLinkView: View {
                             ForEach(model.snapshot.visible(.collection, zone: library.zone).sorted { $0.title < $1.title }) { Text($0.title).tag(Optional($0.id)) }
                         }.accessibilityIdentifier("collectionPicker")
                     }
-                    let members = model.snapshot.zones[library.zone.key]?.members.filter { $0.id != model.userID } ?? []
+                    let members = model.snapshot.zones[library.zone.key]?.libraryMembers.filter { $0.id != model.userID } ?? []
                     if !members.isEmpty {
                         Section {
                             ForEach(members) { member in
-                                Toggle(member.name, isOn: Binding(get: { recipients.contains(member.id) }, set: { if $0 { recipients.insert(member.id) } else { recipients.remove(member.id) } }))
+                                Toggle(member.name, isOn: Binding(get: { recipients.contains(member.id) }, set: { if $0 { recipients.insert(member.id) } else { recipients.remove(member.id) } })).accessibilityIdentifier("mentionRecipient-\(member.id)")
                             }
                         } header: { Text("Mention someone") } footer: { Text("Only the people you mention may receive a notification.") }
                     }
@@ -56,7 +56,7 @@ struct MentionPeopleView: View {
     @State private var recipients: Set<String> = []
     @State private var saving = false
     @State private var error: String?
-    private var members: [Member] { model.snapshot.zones[item.zone.key]?.members.filter { $0.id != model.userID } ?? [] }
+    private var members: [Member] { model.snapshot.zones[item.zone.key]?.libraryMembers.filter { $0.id != model.userID } ?? [] }
     private var mentioned: Set<String> {
         Set(model.snapshot.visible(.mention, zone: item.zone).filter { $0["link"] == item.id }.map { $0["recipient"] })
     }

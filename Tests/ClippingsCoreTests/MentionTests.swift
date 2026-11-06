@@ -121,4 +121,18 @@ final class MentionTests: XCTestCase {
         XCTAssertEqual(state.visible(.mention), original.visible(.mention))
         XCTAssertEqual(state.pending, original.pending)
     }
+    func testMemberListUsesSharedOwnerWithoutChangingPermissions() {
+        var state = ZoneState(zone: Zone(name: "family", owner: "A", scope: .shared))
+        state.canWrite = false
+        state.members = [Member(id: "B", name: "Member", role: "Member", canWrite: false)]
+        XCTAssertEqual(state.libraryMembers.first?.id, "A")
+        XCTAssertEqual(state.libraryMembers.first?.name, "Library owner")
+        XCTAssertFalse(state.canWrite)
+        state.members.append(Member(id: "A", name: "Alex", role: "Owner", canWrite: true))
+        XCTAssertEqual(state.libraryMembers.filter { $0.id == "A" }.map(\.name), ["Alex"])
+        state.available = false
+        XCTAssertTrue(state.libraryMembers.isEmpty)
+        let owned = ZoneState(zone: Zone(name: "family"))
+        XCTAssertTrue(owned.libraryMembers.isEmpty)
+    }
 }

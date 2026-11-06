@@ -87,6 +87,17 @@ public struct ZoneState: Codable, Equatable, Sendable {
     public var canWrite: Bool = true
     public var members: [Member] = []
     public init(zone: Zone) { self.zone = zone }
+    /// A shared zone's owner is an addressable member even when cached participant
+    /// metadata is incomplete. This does not change the current user's permissions.
+    public var libraryMembers: [Member] {
+        guard available else { return [] }
+        var result = members.filter { !$0.id.isEmpty && $0.id != "__defaultOwner__" }
+        if zone.scope == .shared, !zone.owner.isEmpty, zone.owner != "__defaultOwner__",
+           !result.contains(where: { $0.id == zone.owner }) {
+            result.insert(Member(id: zone.owner, name: "Library owner", role: "Owner", canWrite: true), at: 0)
+        }
+        return result
+    }
 }
 
 public struct Snapshot: Codable, Sendable {

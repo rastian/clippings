@@ -45,6 +45,27 @@ final class ClippingsUITests: XCTestCase {
 }
 
 extension ClippingsUITests {
+    func testSaveLinkCanMentionOwnerMissingFromCachedMembers() {
+        app.terminate()
+        app.launchArguments = standardArguments + ["--reset", "--shared-library", "--missing-owner"]
+        app.launch()
+        XCTAssertTrue(app.buttons["addLink"].waitForExistence(timeout: 10))
+        app.tabBars.buttons["Family"].tap()
+        XCTAssertTrue(app.staticTexts["Library owner"].waitForExistence(timeout: 5))
+        app.tabBars.buttons["Library"].tap()
+        app.buttons["addLink"].tap()
+        let owner = app.switches["mentionRecipient-owner"]
+        XCTAssertTrue(owner.waitForExistence(timeout: 5))
+        owner.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        app.textFields["linkURL"].tap(); app.textFields["linkURL"].typeText("https://example.com/trip")
+        app.textFields["linkTitle"].tap(); app.textFields["linkTitle"].typeText("A family trip")
+        app.buttons["saveLink"].tap()
+        app.staticTexts["All links"].firstMatch.tap()
+        app.staticTexts["A family trip"].firstMatch.tap()
+        app.buttons["mentionSomeone"].tap()
+        XCTAssertTrue(app.staticTexts["Already mentioned"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.switches["mentionRecipient-owner"].isEnabled)
+    }
     func openSharedLink(readOnly: Bool = false) {
         app.terminate()
         app.launchArguments = standardArguments + ["--reset", "--shared-library"] + (readOnly ? ["--read-only"] : [])

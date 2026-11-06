@@ -10,6 +10,8 @@ actor FamilyServerDouble {
     struct Library: Sendable { var owner: String; var name: String; var members: [String: Bool] }
     var libraries: [String: Library] = [:]
     var records: [String: Item] = [:]
+    var omitOwnerFromParticipantMetadata = false
+    func setIncompleteMemberMetadata() { omitOwnerFromParticipantMetadata = true }
     func zoneKey(_ zone: Zone, user: String) -> String { "\(zone.scope == .owned ? user : zone.owner)|\(zone.name)" }
     func create(_ zone: Zone, user: String) {
         let key = zoneKey(zone, user: user)
@@ -25,6 +27,7 @@ actor FamilyServerDouble {
             let zone = Zone(name: library.name, owner: library.owner == user ? "__defaultOwner__" : library.owner, scope: library.owner == user ? .owned : .shared)
             var state = ZoneState(zone: zone)
             state.members = library.members.map { Member(id: $0.key, name: $0.key, role: $0.key == library.owner ? "Owner" : "Member", canWrite: $0.value) }
+            if omitOwnerFromParticipantMetadata && library.owner != user { state.members.removeAll { $0.id == library.owner } }
             state.canWrite = library.members[user] == true
             return state
         }
@@ -62,6 +65,31 @@ struct FamilyClientDouble: CloudRepository {
 @MainActor
 final class FamilyScenarioTests: XCTestCase {
     func store() -> LocalStore { LocalStore(url: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathComponent("family.sqlite")) }
+    func testReverseMentionsSurviveMissingOwnerMetadata() async throws {
+        let server = FamilyServerDouble(), a = store(), b = store()
+        await server.setIncompleteMemberMetadata()
+        let engineA = SyncEngine(store: a, cloud: FamilyClientDouble(server: server, user: "A"))
+        let engineB = SyncEngine(store: b, cloud: FamilyClientDouble(server: server, user: "B"))
+        let serviceA = LibraryService(store: a), serviceB = LibraryService(store: b)
+        let family = try await serviceA.createLibrary(name: "Family", userID: "A")
+        _ = try await serviceA.saveLink(url: "https://example.com/recipe", library: family, userID: "A")
+        try await engineA.synchronize()
+        try await server.accept(zone: family.zone, owner: "A", participant: "B")
+        try await engineB.synchronize()
+        let stateB = try await b.read()
+        let joined = try XCTUnwrap(stateB.libraries.first)
+        let oldLink = try XCTUnwrap(stateB.visible(.link).first)
+        XCTAssertFalse(stateB.zones[joined.zone.key]?.members.contains { $0.id == "A" } ?? true)
+        XCTAssertTrue(stateB.zones[joined.zone.key]?.libraryMembers.contains { $0.id == "A" } == true)
+        // Cover both the user's Save a link screen and the existing-link action.
+        let newLink = try await serviceB.saveLink(url: "https://example.com/trip", library: joined, userID: "B", recipients: ["A"])
+        try await serviceB.mention(oldLink, recipients: ["A"], userID: "B")
+        try await engineB.synchronize(); try await engineA.synchronize()
+        let stateA = try await a.read()
+        let unread = LinkRules.unreadMentions(in: stateA, userID: "A")
+        XCTAssertEqual(Set(unread.map { $0["link"] }), [oldLink.id, newLink.id])
+        XCTAssertTrue(unread.allSatisfy { $0["author"] == "B" && $0["recipient"] == "A" })
+    }
     func testInvitedMemberMentionsOwnerOnOwnersExistingLink() async throws {
         let server = FamilyServerDouble(), a = store(), b = store()
         let engineA = SyncEngine(store: a, cloud: FamilyClientDouble(server: server, user: "A"))

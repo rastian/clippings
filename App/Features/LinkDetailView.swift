@@ -26,7 +26,7 @@ struct LinkDetailView: View {
                 }
                 Button { UIPasteboard.general.string = current["url"] } label: { Label("Copy link", systemImage: "doc.on.doc") }
             }
-            if model.snapshot.zones[item.zone.key]?.members.contains(where: { $0.id != model.userID }) == true {
+            if model.snapshot.zones[item.zone.key]?.libraryMembers.contains(where: { $0.id != model.userID }) == true {
                 Section {
                     Button { mentioning = true } label: { Label("Mention someone", systemImage: "at") }
                         .disabled(!canWrite).accessibilityIdentifier("mentionSomeone")
@@ -92,6 +92,6 @@ struct LinkDetailView: View {
             }
     }
     private var authorName: String {
-        current["author"] == model.userID ? "You" : model.snapshot.zones[item.zone.key]?.members.first { $0.id == current["author"] }?.name ?? "Family member"
+        current["author"] == model.userID ? "You" : model.snapshot.zones[item.zone.key]?.libraryMembers.first { $0.id == current["author"] }?.name ?? "Family member"
     }
 }

@@ -61,7 +61,7 @@ public struct LibraryService: Sendable {
     }
     private static func addMentions(for link: Item, recipients: Set<String>, userID: String, now: Date, state: inout Snapshot) {
         for recipient in recipients where recipient != userID {
-            guard state.zones[link.zone.key]?.members.contains(where: { $0.id == recipient }) == true else { continue }
+            guard state.zones[link.zone.key]?.libraryMembers.contains(where: { $0.id == recipient }) == true else { continue }
             let mention = Item(id: "mention-\(link.id)-\(recipient)", kind: .mention, zone: link.zone)
             if state.items[mention.key] == nil {
                 _ = state.edit(mention, values: ["link": link.id, "recipient": recipient, "author": userID, "created": String(now.timeIntervalSince1970), "read": "false"])

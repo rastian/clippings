@@ -8,6 +8,7 @@ extension Configuration {
         guard isUITesting, arguments.contains("--reset") else { return }
         let sharedLibrary = arguments.contains("--shared-library")
         let readOnly = arguments.contains("--read-only")
+        let missingOwner = arguments.contains("--missing-owner")
         try await store.transaction { state in
             state = Snapshot()
             guard sharedLibrary else { return }
@@ -22,6 +23,7 @@ extension Configuration {
                 Member(id: "participant", name: "Sam", role: "Member", canWrite: !readOnly)
             ]
             state.zones[zone.key]?.canWrite = !readOnly
+            if missingOwner { state.zones[zone.key]?.members.removeAll { $0.id == "owner" } }
             state.pending = [:]
         }
     }

@@ -20,7 +20,7 @@ struct FamilyView: View {
                 if let library = model.library {
                     Section("Sharing") {
                         Button { Task { await model.manageSharing() } } label: { Label("Invite & manage family", systemImage: "person.badge.plus") }
-                        ForEach(model.snapshot.zones[library.zone.key]?.members ?? []) { member in
+                        ForEach(model.snapshot.zones[library.zone.key]?.libraryMembers ?? []) { member in
                             LabeledContent(member.id == model.userID ? "You" : member.name, value: member.role + (member.canWrite ? "" : " · View only"))
                         }
                         Button(library.zone.scope == .owned ? "Delete library" : "Leave library", role: .destructive) { removing = true }

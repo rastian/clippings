@@ -26,6 +26,52 @@ final class AppleMappingTests: XCTestCase {
     }
 }
 @MainActor
+final class AppleSharingTests: XCTestCase {
+    func testSharedZoneWithoutReferenceFetchesZoneWideShare() async throws {
+        let zone = CKRecordZone(zoneID: CKRecordZone.ID(zoneName: "clippings-family-test", ownerName: "owner-ID"))
+        XCTAssertNil(zone.share)
+        let share = CKShare(recordZoneID: zone.zoneID)
+        let fetched = try await AppleCloudRepository.fetchShare(in: zone, scope: .shared) { id in
+            XCTAssertEqual(id.zoneID, zone.zoneID)
+            XCTAssertEqual(id.recordName, CKRecordNameZoneWideShare)
+            return share
+        }
+        XCTAssertEqual(fetched?.recordID, share.recordID)
+    }
+    func testOwnerUsesStableAccountIDWithoutDiscoverableIdentity() {
+        let shared = Zone(name: "clippings-family-test", owner: "owner-ID", scope: .shared)
+        let share = CKShare(recordZoneID: RecordCodec.zoneID(shared))
+        // Unsaved CloudKit shares have no server-resolved user identity. The zone
+        // owner, not a display name or default-owner alias, addresses the mention.
+        let members = AppleCloudRepository.members(in: share, zone: shared, currentUserID: "participant-ID")
+        XCTAssertEqual(members.filter { $0.role == "Owner" }.map(\.id), ["owner-ID"])
+        XCTAssertEqual(members.first?.name, "Library owner")
+        let owned = Zone(name: shared.name)
+        let ownerMembers = AppleCloudRepository.members(in: share, zone: owned, currentUserID: "owner-ID")
+        XCTAssertEqual(ownerMembers.filter { $0.role == "Owner" }.map(\.id), ["owner-ID"])
+    }
+    func testMissingShareIsExpectedOnlyForAnUnsharedOwnedLibrary() async throws {
+        let zone = CKRecordZone(zoneName: "clippings-family-test")
+        let missing = try await AppleCloudRepository.fetchShare(in: zone, scope: .owned) { _ in throw CKError(.unknownItem) }
+        XCTAssertNil(missing)
+        do {
+            _ = try await AppleCloudRepository.fetchShare(in: zone, scope: .shared) { _ in throw CKError(.unknownItem) }
+            XCTFail("A missing participant share must not silently clear the member list")
+        } catch { XCTAssertEqual((error as? CKError)?.code, .unknownItem) }
+        do {
+            _ = try await AppleCloudRepository.fetchShare(in: zone, scope: .owned) { _ in throw CKError(.networkUnavailable) }
+            XCTFail("Network failures must be retried")
+        } catch { XCTAssertEqual((error as? CKError)?.code, .networkUnavailable) }
+    }
+    func testInvalidShareRecordIsRejected() async throws {
+        let zone = CKRecordZone(zoneName: "clippings-family-test")
+        do {
+            _ = try await AppleCloudRepository.fetchShare(in: zone, scope: .shared) { id in CKRecord(recordType: "Other", recordID: id) }
+            XCTFail("A normal record cannot supply sharing permissions")
+        } catch { XCTAssertEqual(error as? ClippingsError, .cloud("The family sharing information could not be read.")) }
+    }
+}
+@MainActor
 final class AttachmentReaderTests: XCTestCase {
     func testNativeURLProvider() async throws {
         let url = try XCTUnwrap(URL(string: "https://example.com/recipe"))
