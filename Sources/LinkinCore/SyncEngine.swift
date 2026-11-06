@@ -29,7 +29,7 @@ public actor SyncEngine {
         let task = Task { try await self.run() }
         running = task
         defer { running = nil }
-        try await task.value
+        try await withTaskCancellationHandler { try await task.value } onCancel: { task.cancel() }
     }
     private func run() async throws {
         let user = try await cloud.currentUserID()

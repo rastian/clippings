@@ -55,4 +55,12 @@ final class DomainTests: XCTestCase {
         XCTAssertEqual(state.recovered?[item.key]?.title, "My title")
     }
 
+    func testSharedURLAndCaptionInputs() throws {
+        XCTAssertEqual(try SharedInput.url(in: "Look at this recipe https://example.com/recipe #family").host, "example.com")
+        XCTAssertEqual(try SharedInput.url(in: "https://example.com/video").path, "/video")
+        XCTAssertThrowsError(try SharedInput.url(in: "Just a photo caption"))
+        XCTAssertThrowsError(try SharedInput.url(in: "file:///private/secret"))
+        XCTAssertThrowsError(try SharedInput.url(in: String(repeating: "a", count: 40_000)))
+    }
+
 }
