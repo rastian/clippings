@@ -8,7 +8,8 @@ A native iPhone and iPad app for keeping the links your family wants to come bac
 
 - Family libraries and collections with SF Symbols, native search, sorting, moving and deletion.
 - Offline link saving, durable queued changes and a native Share Extension for URLs and captions.
-- LinkPresentation previews, bounded local metadata caching, domain fallbacks and user-written descriptions.
+- A newspaper-inspired iPhone library with serif headlines, warm paper/charcoal appearances, and a matching light/dark app icon. The latest five links use photo cards with short excerpts; older links stay compact.
+- LinkPresentation thumbnails and titles, bounded local metadata/excerpt caches, domain fallbacks and user-written descriptions. Public article openings are preferred for excerpts, with website descriptions as a fallback.
 - Owner/private and participant/shared CloudKit zones, CKShare invitations, native participant management and permissions.
 - Deterministic conflict handling, tombstones, expired-token recovery, account isolation and exportable recovery copies.
 - Private notes and mention read receipts in an unshared personal zone.
@@ -44,7 +45,7 @@ If your checkout is in an iCloud-synced Desktop folder, choose **Keep Downloaded
 
 Local features and synchronization logic have automated coverage. **Real multi-account CloudKit, signed App Group sharing, APNs delivery and App Store distribution have not been verified in a configured Apple environment.** The native integrations are implemented, but those checks remain required before release. The iOS 17 deployment target compiles against the installed current SDK; minimum-version device/runtime behavior still needs the release matrix in TESTING.md.
 
-CloudKit does not promise immediate synchronization or background delivery. Ordinary link activity never requests an alert. Private notes stay out of shared family zones. Apple LinkPresentation has no public summary-description property on the iOS 17 API: descriptions are optional user-entered text; title/image/icon previews use public APIs only.
+CloudKit does not promise immediate synchronization or background delivery. Ordinary link activity never requests an alert. Private notes stay out of shared family zones. Title/image previews use public LinkPresentation APIs. Excerpts use a separate, bounded HTML request without persistent cookies: the first two sentences from article/main paragraphs, or page description metadata when article text is unavailable. Script-rendered and restricted pages may have no excerpt or image. User descriptions take precedence and are never overwritten by fetched text. Preview failures never prevent saving or opening a link.
 
 ## Project guide
 

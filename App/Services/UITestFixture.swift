@@ -16,7 +16,9 @@ extension Configuration {
             let zone = Zone(name: "clippings-family-ui-test", owner: "owner", scope: .shared)
             _ = state.edit(Item(id: "family", kind: .library, zone: zone), values: ["title": "Our family", "owner": "owner"])
             _ = state.edit(Item(id: "pasta", kind: .link, zone: zone), values: [
-                "title": "Weekend pasta", "url": "https://example.com/pasta", "domain": "example.com", "author": "owner"
+                "title": "Weekend pasta", "url": "https://example.com/pasta", "domain": "example.com", "author": "owner",
+                "created": String(Date().timeIntervalSince1970),
+                "summary": "A few good tomatoes and a little patience make a meal worth sharing. Bring everyone to the table for a slow Sunday lunch."
             ])
             state.zones[zone.key]?.members = [
                 Member(id: "owner", name: "Alex", role: "Owner", canWrite: true),

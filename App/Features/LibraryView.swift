@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct LibraryView: View {
+struct LibrarySplitView: View {
     @Environment(AppModel.self) private var model
     @State private var query = ""
     @State private var selection: String?
@@ -63,8 +63,10 @@ struct LinkListView: View {
     let collection: String?
     @Binding var oldest: Bool
     @Binding var addingLink: Bool
+    var showCollections: (() -> Void)? = nil
     @State private var query = ""
     @State private var deleting: Item?
+    @State private var selectedLink: Item?
     private var links: [Item] {
         guard let library = model.library else { return [] }
         return LinkRules.links(in: model.snapshot, zone: library.zone, query: query, collection: collection, oldestFirst: oldest)
@@ -74,18 +76,31 @@ struct LinkListView: View {
         NavigationStack {
             List {
                 if !links.isEmpty {
+                    NewspaperMasthead().listRowBackground(Color.clear).listRowSeparator(.hidden)
                     Section {
-                        ForEach(links) { link in
-                            NavigationLink { LinkDetailView(item: link) } label: { LinkRow(item: link) }
+                        ForEach(Array(links.enumerated()), id: \.element.id) { index, link in
+                            Button { selectedLink = link } label: { ClippingCard(item: link, featured: index < 5) }
+                                .buttonStyle(.plain)
+                                .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 16, trailing: 18))
                                 .contextMenu {
                                     if let url = URL(string: link["url"]) { ShareLink(item: url) }
                                     Button("Copy link", systemImage: "doc.on.doc") { UIPasteboard.general.string = link["url"] }
-                                    Button("Delete link", systemImage: "trash", role: .destructive) { deleting = link }
+                                    if model.snapshot.zones[link.zone.key]?.canWrite != false { Button("Delete link", systemImage: "trash", role: .destructive) { deleting = link } }
                                 }
-                                .swipeActions { Button("Delete", role: .destructive) { deleting = link } }
+                                .swipeActions { if model.snapshot.zones[link.zone.key]?.canWrite != false { Button("Delete", role: .destructive) { deleting = link } } }
                         }
-                    } header: { Text("\(links.count) \(links.count == 1 ? "link" : "links")") }
+                    } header: {
+                        ViewThatFits(in: .horizontal) {
+                            HStack { Text(oldest ? "From the archives" : "Freshly clipped").font(.system(.title3, design: .serif)).italic(); Spacer(); Text(oldest ? "Oldest first" : "Newest first").font(.caption2) }
+                            Text(oldest ? "From the archives" : "Freshly clipped").font(.system(.title3, design: .serif)).italic()
+                        }.textCase(nil).foregroundStyle(Design.secondaryInk).padding(.bottom, 8)
+                    }
                 }
+            }
+            .listStyle(.plain).listSectionSpacing(10).scrollContentBackground(.hidden).background(Design.paper)
+            .navigationDestination(isPresented: Binding(get: { selectedLink != nil }, set: { if !$0 { selectedLink = nil } })) {
+                if let selectedLink { LinkDetailView(item: selectedLink) }
             }
             .overlay {
                 if links.isEmpty {
@@ -96,11 +111,14 @@ struct LinkListView: View {
                     }
                 }
             }
-            .navigationTitle(title).searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search links and notes").accessibilityIdentifier("linkList")
+            .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Design.paper, for: .navigationBar)
+            .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search links and notes").accessibilityIdentifier("linkList")
             .toolbar {
+                if let showCollections { ToolbarItem(placement: .topBarLeading) { Button(action: showCollections) { Label("Collections", systemImage: "tray.full") }.accessibilityIdentifier("showCollections") } }
                 ToolbarItemGroup(placement: .primaryAction) {
                     Menu { Picker("Sort links", selection: $oldest) { Text("Newest first").tag(false); Text("Oldest first").tag(true) } } label: { Label("Sort", systemImage: "arrow.up.arrow.down") }
-                    Button { addingLink = true } label: { Label("Add link", systemImage: "plus") }.accessibilityIdentifier("addLinkDetail").disabled(model.library.map { model.snapshot.zones[$0.zone.key]?.canWrite == false } ?? true)
+                    Button { addingLink = true } label: { Label("Add link", systemImage: "plus") }.accessibilityIdentifier(showCollections == nil ? "addLinkDetail" : "addLink").disabled(model.library.map { model.snapshot.zones[$0.zone.key]?.canWrite == false } ?? true)
                 }
             }.refreshable { await model.refresh() }
             .confirmationDialog("Delete this link for everyone?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible, presenting: deleting) { item in

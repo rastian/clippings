@@ -50,7 +50,8 @@ struct LinkDetailView: View {
                 LabeledContent("Saved", value: current.date.formatted(date: .abbreviated, time: .shortened))
             }
             if canWrite { Section { Button("Delete link", role: .destructive) { deleting = true }.accessibilityIdentifier("deleteLink") } }
-        }.navigationTitle("Saved link").navigationBarTitleDisplayMode(.inline)
+        }.scrollContentBackground(.hidden).background(Design.paper)
+            .navigationTitle("Saved link").navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $mentioning) { MentionPeopleView(item: current) }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

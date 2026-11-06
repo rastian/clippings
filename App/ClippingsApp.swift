@@ -45,10 +45,10 @@ struct RootView: View {
             else if model.library == nil { OnboardingView() }
             else {
                 TabView {
-                    LibraryView().tabItem { Label("Library", systemImage: "books.vertical") }
+                    LibraryView().tabItem { Label("Library", systemImage: "newspaper") }
                     MentionsView().tabItem { Label("Mentions", systemImage: "at") }.badge(model.unread.count)
                     FamilyView().tabItem { Label("Family", systemImage: "person.2") }
-                }
+                }.toolbarBackground(Design.paper, for: .tabBar)
             }
         }
         .onChange(of: AppEvents.shared.selectedLinkKey) { _, _ in presentPendingNotification() }

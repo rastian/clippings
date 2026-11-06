@@ -10,8 +10,11 @@ protocol MetadataProviding {
 @MainActor
 final class MetadataService: MetadataProviding {
     static let shared = MetadataService()
+    nonisolated static func cacheKey(_ url: URL) -> String {
+        SHA256.hash(data: Data(url.absoluteString.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
     private func file(_ url: URL) -> URL {
-        let key = SHA256.hash(data: Data(url.absoluteString.utf8)).map { String(format: "%02x", $0) }.joined()
+        let key = Self.cacheKey(url)
         return Configuration.directory.appendingPathComponent("Previews", isDirectory: true).appendingPathComponent(key)
     }
     func cached(for url: URL) -> LPLinkMetadata? {

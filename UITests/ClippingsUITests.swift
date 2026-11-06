@@ -13,14 +13,22 @@ final class ClippingsUITests: XCTestCase {
     func createLibrary() {
         XCTAssertTrue(app.buttons["createLibrary"].waitForExistence(timeout: 10))
         app.buttons["createLibrary"].tap()
-        XCTAssertTrue(app.buttons["newCollection"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["addLink"].waitForExistence(timeout: 10))
+    }
+    func openCollections() {
+        if app.buttons["showCollections"].exists { app.buttons["showCollections"].tap() }
+    }
+    func closeCollections() {
+        if app.navigationBars["Collections"].buttons["Done"].exists { app.navigationBars["Collections"].buttons["Done"].tap() }
     }
     func testOnboardingCollectionsAndSaving() {
         createLibrary()
+        openCollections()
         app.buttons["newCollection"].tap()
         app.textFields["collectionName"].tap(); app.textFields["collectionName"].typeText("Recipes")
         app.buttons["saveCollection"].tap()
         XCTAssertTrue(app.staticTexts["Recipes"].waitForExistence(timeout: 5))
+        closeCollections()
         app.buttons["addLink"].tap()
         app.textFields["linkURL"].tap(); app.textFields["linkURL"].typeText("https://example.com/pasta")
         app.textFields["linkTitle"].tap(); app.textFields["linkTitle"].typeText("Weekend pasta")
@@ -45,6 +53,19 @@ final class ClippingsUITests: XCTestCase {
 }
 
 extension ClippingsUITests {
+    func testNewspaperCards() {
+            app.terminate()
+            app.launchArguments = standardArguments + ["--reset", "--shared-library"]
+            app.launch()
+            XCTAssertTrue(app.staticTexts["Freshly clipped"].waitForExistence(timeout: 10))
+            XCTAssertTrue(app.staticTexts["Clippings"].exists)
+            XCTAssertTrue(app.staticTexts["clippingExcerpt"].exists)
+            XCTAssertTrue(app.staticTexts["Weekend pasta"].isHittable)
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "Sunday paper"; screenshot.lifetime = .keepAlways; add(screenshot)
+            app.staticTexts["Weekend pasta"].tap()
+            XCTAssertTrue(app.buttons["mentionSomeone"].waitForExistence(timeout: 5))
+    }
     func testSaveLinkCanMentionOwnerMissingFromCachedMembers() {
         app.terminate()
         app.launchArguments = standardArguments + ["--reset", "--shared-library", "--missing-owner"]
@@ -102,16 +123,18 @@ extension ClippingsUITests {
         XCTAssertTrue(app.staticTexts["You need editing access to mention someone in this library."].exists)
     }
     func addLink(title: String = "Weekend pasta", url: String = "https://example.com/pasta", detail: Bool = false) {
-        app.buttons[detail ? "addLinkDetail" : "addLink"].tap()
+        app.buttons[app.buttons["addLink"].exists ? "addLink" : "addLinkDetail"].tap()
         app.textFields["linkURL"].tap(); app.textFields["linkURL"].typeText(url)
         app.textFields["linkTitle"].tap(); app.textFields["linkTitle"].typeText(title)
         app.buttons["saveLink"].tap()
     }
     func createCollection(_ name: String) {
+        openCollections()
         app.buttons["newCollection"].tap()
         app.textFields["collectionName"].tap(); app.textFields["collectionName"].typeText(name)
         app.buttons["saveCollection"].tap()
         XCTAssertTrue(app.staticTexts[name].waitForExistence(timeout: 5))
+        closeCollections()
     }
     func testSearchNotesMoveAndDelete() {
         createLibrary(); createCollection("Recipes"); addLink()
@@ -136,11 +159,14 @@ extension ClippingsUITests {
     }
     func testDeletingCollectionKeepsItsLinks() {
         createLibrary(); createCollection("Recipes")
+        openCollections()
         app.staticTexts["Recipes"].firstMatch.tap()
         addLink(detail: true)
         XCTAssertTrue(app.staticTexts["Weekend pasta"].waitForExistence(timeout: 5))
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.staticTexts["Recipes"].firstMatch.press(forDuration: 1)
+        if app.buttons["showCollections"].exists { openCollections() }
+        else { app.navigationBars.buttons.element(boundBy: 0).tap() }
+        let recipe = app.buttons["collectionChoice-Recipes"].exists ? app.buttons["collectionChoice-Recipes"] : app.staticTexts["Recipes"].firstMatch
+        recipe.press(forDuration: 1)
         app.buttons["Delete collection"].tap()
         app.sheets.buttons["Delete collection"].tap()
         app.staticTexts["Unfiled"].firstMatch.tap()

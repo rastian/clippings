@@ -10,6 +10,6 @@ Use Config/Local.xcconfig (ignored by Git) for DEVELOPMENT_TEAM and custom conta
 
 The unsigned simulator build uses a local app-support store when the App Group is unavailable. The production app uses the shared App Group. UI tests use a separate temporary store and disable external network metadata and iCloud; the reset flags only exist in Debug.
 
-Recreate the original icon with `swift scripts/generate_icon.swift App/Assets.xcassets/AppIcon.appiconset/AppIcon.png`.
+Recreate both newspaper icon variants with `swift scripts/generate_icon.swift App/Assets.xcassets/AppIcon.appiconset/AppIcon.png`. The generator writes `AppIcon.png` and `AppIcon-Dark.png` beside it.
 
 If the repository is inside iCloud Drive/Desktop and Xcode hangs before build planning, choose **Keep Downloaded** for the project in Finder. Keep DerivedData outside the synced folder. `python3 scripts/stage_for_validation.py` creates an ordinary temporary copy of build inputs under `/tmp/clippings-validation`; use its project with `-derivedDataPath /tmp/clippings-build`. Source edits and commits remain in the original repository.
