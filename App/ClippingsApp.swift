@@ -11,9 +11,7 @@ struct ClippingsApp: App {
             RootView().environment(model).tint(Design.accent)
                 .task {
                     #if DEBUG
-                    if Configuration.isUITesting && ProcessInfo.processInfo.arguments.contains("--reset") {
-                        try? await model.store.transaction { $0 = Snapshot() }
-                    }
+                    try? await Configuration.resetUITestStore(model.store)
                     #endif
                     await model.start()
                 }

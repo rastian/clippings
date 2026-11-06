@@ -62,6 +62,33 @@ struct FamilyClientDouble: CloudRepository {
 @MainActor
 final class FamilyScenarioTests: XCTestCase {
     func store() -> LocalStore { LocalStore(url: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathComponent("family.sqlite")) }
+    func testInvitedMemberMentionsOwnerOnOwnersExistingLink() async throws {
+        let server = FamilyServerDouble(), a = store(), b = store()
+        let engineA = SyncEngine(store: a, cloud: FamilyClientDouble(server: server, user: "A"))
+        let engineB = SyncEngine(store: b, cloud: FamilyClientDouble(server: server, user: "B"))
+        let serviceA = LibraryService(store: a), serviceB = LibraryService(store: b)
+        let family = try await serviceA.createLibrary(name: "Family", userID: "A")
+        let link = try await serviceA.saveLink(url: "https://example.com/recipe", title: "Pasta", library: family, userID: "A")
+        try await engineA.synchronize()
+        try await server.accept(zone: family.zone, owner: "A", participant: "B")
+        try await engineB.synchronize()
+        let stateB = try await b.read()
+        let sharedLink = try XCTUnwrap(stateB.visible(.link).first)
+        XCTAssertEqual(sharedLink.zone.scope, .shared)
+        try await serviceB.mention(sharedLink, recipients: ["A"], userID: "B")
+        try await engineB.synchronize(); try await engineA.synchronize()
+        let stateA = try await a.read()
+        let mention = try XCTUnwrap(LinkRules.unreadMentions(in: stateA, userID: "A").first)
+        XCTAssertEqual(mention["author"], "B")
+        XCTAssertEqual(mention["link"], link.id)
+        XCTAssertEqual(stateA.items[link.key], link)
+        let notifier = NotificationDouble()
+        let ownerProcessor = MentionProcessor(store: a, notifier: notifier)
+        try await ownerProcessor.process(userID: "A"); try await ownerProcessor.process(userID: "A")
+        let delivered = await notifier.scheduled(), calls = await notifier.callCount()
+        XCTAssertEqual(delivered, [mention.key]); XCTAssertEqual(calls, 1)
+        XCTAssertTrue(LinkRules.unreadMentions(in: stateA, userID: "B").isEmpty)
+    }
     func testTwoAccountFamilyScenarioWithPrivateNotesAndReadReceipts() async throws {
         let server = FamilyServerDouble(), a = store(), b = store(), secondB = store()
         let engineA = SyncEngine(store: a, cloud: FamilyClientDouble(server: server, user: "A"))

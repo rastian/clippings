@@ -45,6 +45,41 @@ final class ClippingsUITests: XCTestCase {
 }
 
 extension ClippingsUITests {
+    func openSharedLink(readOnly: Bool = false) {
+        app.terminate()
+        app.launchArguments = standardArguments + ["--reset", "--shared-library"] + (readOnly ? ["--read-only"] : [])
+        app.launch()
+        XCTAssertTrue(app.staticTexts["All links"].firstMatch.waitForExistence(timeout: 10))
+        app.staticTexts["All links"].firstMatch.tap()
+        app.staticTexts["Weekend pasta"].firstMatch.tap()
+    }
+    func testInvitedMemberCanMentionOwnerOnSavedLink() {
+        openSharedLink()
+        app.buttons["mentionSomeone"].tap()
+        let owner = app.switches["mentionRecipient-owner"]
+        XCTAssertTrue(owner.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.switches["mentionRecipient-participant"].exists)
+        XCTAssertFalse(app.buttons["sendMentions"].isEnabled)
+        // SwiftUI exposes the whole row as a switch; tap the trailing control.
+        owner.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["sendMentions"].isEnabled)
+        app.buttons["sendMentions"].tap()
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.buttons["sendMentions"])
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 5), .completed)
+        app.buttons["mentionSomeone"].tap()
+        XCTAssertTrue(owner.waitForExistence(timeout: 5))
+        XCTAssertFalse(owner.isEnabled)
+        XCTAssertTrue(app.staticTexts["Already mentioned"].exists)
+        XCTAssertFalse(app.buttons["sendMentions"].isEnabled)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Invited member mentioned the owner"; screenshot.lifetime = .keepAlways; add(screenshot)
+    }
+    func testViewOnlyMemberSeesWhyMentionsAreUnavailable() {
+        openSharedLink(readOnly: true)
+        XCTAssertTrue(app.buttons["mentionSomeone"].exists)
+        XCTAssertFalse(app.buttons["mentionSomeone"].isEnabled)
+        XCTAssertTrue(app.staticTexts["You need editing access to mention someone in this library."].exists)
+    }
     func addLink(title: String = "Weekend pasta", url: String = "https://example.com/pasta", detail: Bool = false) {
         app.buttons[detail ? "addLinkDetail" : "addLink"].tap()
         app.textFields["linkURL"].tap(); app.textFields["linkURL"].typeText(url)

@@ -11,6 +11,7 @@ struct LinkDetailView: View {
     @State private var collection: String?
     @State private var metadata: LPLinkMetadata?
     @State private var deleting = false
+    @State private var mentioning = false
     @State private var edited = false
     private var canWrite: Bool { model.snapshot.zones[item.zone.key]?.canWrite != false }
     private var current: Item { model.snapshot.items[item.key] ?? item }
@@ -24,6 +25,14 @@ struct LinkDetailView: View {
                     ShareLink(item: url) { Label("Share link", systemImage: "square.and.arrow.up") }
                 }
                 Button { UIPasteboard.general.string = current["url"] } label: { Label("Copy link", systemImage: "doc.on.doc") }
+            }
+            if model.snapshot.zones[item.zone.key]?.members.contains(where: { $0.id != model.userID }) == true {
+                Section {
+                    Button { mentioning = true } label: { Label("Mention someone", systemImage: "at") }
+                        .disabled(!canWrite).accessibilityIdentifier("mentionSomeone")
+                } footer: {
+                    if !canWrite { Text("You need editing access to mention someone in this library.") }
+                }
             }
             Section("Details") {
                 TextField("Title", text: $title, axis: .vertical).accessibilityIdentifier("editLinkTitle").onChange(of: title) { _, _ in edited = true }
@@ -42,6 +51,7 @@ struct LinkDetailView: View {
             }
             if canWrite { Section { Button("Delete link", role: .destructive) { deleting = true }.accessibilityIdentifier("deleteLink") } }
         }.navigationTitle("Saved link").navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $mentioning) { MentionPeopleView(item: current) }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save changes") {

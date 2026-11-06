@@ -12,7 +12,7 @@ A native iPhone and iPad app for keeping the links your family wants to come bac
 - Owner/private and participant/shared CloudKit zones, CKShare invitations, native participant management and permissions.
 - Deterministic conflict handling, tombstones, expired-token recovery, account isolation and exportable recovery copies.
 - Private notes and mention read receipts in an unshared personal zone.
-- Explicit mentions with filtered, deduplicated local alerts and silent CloudKit subscriptions. Foreground refresh recovers changes when background delivery is unavailable.
+- Explicit mentions when saving a link or from **Mention someone** on a saved link. Any member with editing access can mention the owner or another member. Alerts are filtered and deduplicated, with silent CloudKit subscriptions; foreground refresh recovers changes when background delivery is unavailable.
 - Adaptive iPad navigation, light/dark appearance, Dynamic Type, accessibility identifiers, privacy manifests and an original app icon.
 
 ## Build and run locally

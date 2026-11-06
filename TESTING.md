@@ -6,7 +6,7 @@
 - `xcodebuild test -project Clippings.xcodeproj -scheme Clippings -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO`: simulator-hosted unit tests and XCUITest.
 - `python3 scripts/select_simulator.py`: prints a destination ID for an installed iPhone simulator.
 
-Tests use isolated temporary databases and controlled timestamps. The two-connection persistence test models concurrent app/extension access. UI tests start from a dedicated empty store; ordinary user data is not reset.
+Tests use isolated temporary databases and controlled timestamps. The two-connection persistence test models concurrent app/extension access. UI tests use a dedicated store, either empty or seeded with an invited-member fixture; ordinary user data is not reset. Fixtures are available only in Debug builds with UI-testing arguments and never connect to iCloud.
 
 GitHub Actions runs these suites on macOS on pull requests and pushes to main. It selects an installed Xcode 26 and simulator and uploads the result bundle, including failure details. It does not use production signing credentials. No automated test should be described as proof of real multi-account iCloud synchronization.
 
@@ -30,9 +30,11 @@ Quality milestone, 6 November 2026 (Xcode 26.6, iOS 26.5 simulator):
 - Search over 2,000 links and 2,000 notes averaged about 22–26 ms in local tests. This is a controlled search measurement, not a real-device cloud or storage-throughput claim.
 - Info.plists, entitlements and privacy manifests passed property-list validation. No Swift concurrency warnings remained.
 
-The notification milestone also passed GitHub Actions on macOS: [run 42197241470](https://github.com/rastian/clippings/actions/runs/42197241470). The quality commit triggers the expanded suites; the repository's Actions page is the authority for that commit's result. The portable suite contains 27 tests; the iOS suite adds 5 native-adapter tests.
+The notification milestone also passed GitHub Actions on macOS: [run 42197241470](https://github.com/rastian/clippings/actions/runs/42197241470). The repository's Actions page is the authority for each commit's CI result. The current portable suite contains 30 tests; the iOS suite adds 5 native-adapter tests.
 
 Fresh Clippings identity, 6 November 2026 (Xcode 27.2, iPhone 18 Pro simulator on iOS 27.2): **27 portable tests, 32 iOS unit/integration tests and all 7 UI scenarios passed**. The unsigned Release build also passed for the app and embedded extension. The renamed scheme, test host and modules run with `app.clippings.family`; the built Share Extension uses `app.clippings.family.share`. Both bundles resolve the new CloudKit container and App Group configuration. The current source files and paths contain only the Clippings identity, with no compatibility aliases or data migration. Apple Developer registration and real iCloud/device checks remain separate requirements.
+
+Saved-link mentions, 6 November 2026 (Xcode 27.2, iPhone 18 Pro simulator on iOS 27.2): **30 portable tests, 35 iOS unit/integration tests and 3 focused UI scenarios passed**. Coverage includes an invited member mentioning the owner on the owner’s existing link, unchanged link content, duplicate suppression, invalid recipients, deleted links and revoked/view-only access. Screen checks cover sending to the owner, the view-only explanation and ordinary link saving. The UI test taps the trailing switch control and waits for the composer to dismiss before checking the saved mention. Cross-account delivery uses the test double; real CloudKit and APNs still require the device procedure below.
 
 ## Real two-account integration procedure — required before release
 
@@ -45,7 +47,7 @@ Use two physical devices (A and B) with different Apple Accounts, the same confi
 5. B sees “Recipes” and A's link after refresh; record the shared record IDs, not personal identities.
 6. B shares `https://example.com/recipe-b` using Safari → Share → Clippings, chooses the shared library and Recipes, and saves without opening the main app. Wait for the extension's confirmed iCloud status. Repeat from YouTube, Instagram and Reddit where those apps expose a URL; unsupported shares must explain the issue and preserve input.
 7. A refreshes and sees B's link once. Repeat the extension save and confirm no duplicate appears.
-8. A saves another link and explicitly mentions B. Confirm ordinary saves/collection edits/deletions do not produce visible alerts.
+8. A saves another link and explicitly mentions B. Then B opens a link saved by A, taps **Mention someone**, selects A, and sends it. A should see B’s mention after syncing. Reopen the picker and confirm A is marked **Already mentioned** to prevent duplicate alerts. With B set to view-only, verify the button is disabled and explains that editing access is required. Confirm ordinary saves/collection edits/deletions do not produce visible alerts.
 9. B eventually sees the unread mention. With notifications authorized and the app backgrounded, observe whether iOS permits delivery. A missing background alert is not a failed sync guarantee: open the app and verify the unread mention appears. Test denied permission, Low Power Mode and force-quit separately; document delivery as best effort.
 10. B swipes the mention to mark it read. Verify it disappears from B's unread list and its alert is removed. Refresh B's other device and verify the private receipt syncs; A must not see B's private notes or receipts in the shared zone.
 11. Both users refresh and verify the same live shared links, collections, shared descriptions, authors and deletion results. Save a **private note** on B; it must only be visible on B's devices.

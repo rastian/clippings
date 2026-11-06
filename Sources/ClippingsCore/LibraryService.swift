@@ -43,15 +43,29 @@ public struct LibraryService: Sendable {
                     "updated": String(now.timeIntervalSince1970), "collection": collection
                 ])
             }
-            for recipient in recipients where recipient != userID {
-                guard state.zones[library.zone.key]?.members.contains(where: { $0.id == recipient }) == true else { continue }
-                let mentionID = "mention-\(item.id)-\(recipient)"
-                let mention = Item(id: mentionID, kind: .mention, zone: library.zone)
-                if state.items[mention.key] == nil {
-                    _ = state.edit(mention, values: ["link": item.id, "recipient": recipient, "author": userID, "created": String(now.timeIntervalSince1970), "read": "false"])
-                }
-            }
+            Self.addMentions(for: item, recipients: recipients, userID: userID, now: now, state: &state)
             return item
+        }
+    }
+    /// Any participant with editing access can mention someone on an existing link.
+    public func mention(_ link: Item, recipients: Set<String>, userID: String, now: Date = Date()) async throws {
+        try await store.transaction { state in
+            guard let current = state.items[link.key], current.kind == .link, !current.deleted else {
+                throw ClippingsError.storage("This link is no longer available.")
+            }
+            guard state.zones[current.zone.key]?.available == true, state.zones[current.zone.key]?.canWrite == true else {
+                throw ClippingsError.readOnly
+            }
+            Self.addMentions(for: current, recipients: recipients, userID: userID, now: now, state: &state)
+        }
+    }
+    private static func addMentions(for link: Item, recipients: Set<String>, userID: String, now: Date, state: inout Snapshot) {
+        for recipient in recipients where recipient != userID {
+            guard state.zones[link.zone.key]?.members.contains(where: { $0.id == recipient }) == true else { continue }
+            let mention = Item(id: "mention-\(link.id)-\(recipient)", kind: .mention, zone: link.zone)
+            if state.items[mention.key] == nil {
+                _ = state.edit(mention, values: ["link": link.id, "recipient": recipient, "author": userID, "created": String(now.timeIntervalSince1970), "read": "false"])
+            }
         }
     }
     public func update(_ item: Item, values: [String: String?]) async throws {
