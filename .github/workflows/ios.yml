@@ -1,0 +1,38 @@
+name: iOS
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 26
+        run: |
+          XCODE=$(find /Applications -maxdepth 1 -name 'Xcode_26*.app' | sort -V | tail -1)
+          test -n "$XCODE" || { echo 'Xcode 26 is required'; exit 1; }
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version
+      - name: Core tests
+        run: swift test
+      - name: Select installed iPhone simulator
+        run: |
+          python3 scripts/select_simulator.py >> "$GITHUB_ENV"
+      - name: Build and run unit and UI tests
+        run: >-
+          xcodebuild test -project linkin.xcodeproj -scheme linkin
+          -destination "platform=iOS Simulator,id=$SIMULATOR_ID"
+          -derivedDataPath .build-ci -resultBundlePath TestResults.xcresult
+          CODE_SIGNING_ALLOWED=NO
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: TestResults.xcresult
