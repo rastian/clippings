@@ -4,6 +4,8 @@ struct FamilyView: View {
     @Environment(AppModel.self) private var model
     @State private var newLibrary = false
     @State private var name = ""
+    @State private var removing = false
+    @State private var exportURL: URL?
     var body: some View {
         NavigationStack {
             Form {
@@ -15,10 +17,32 @@ struct FamilyView: View {
                     }
                     Button("Create another library", systemImage: "plus") { newLibrary = true }
                 }
+                if let library = model.library {
+                    Section("Sharing") {
+                        Button { Task { await model.manageSharing() } } label: { Label("Invite & manage family", systemImage: "person.badge.plus") }
+                        ForEach(model.snapshot.zones[library.zone.key]?.members ?? []) { member in
+                            LabeledContent(member.id == model.userID ? "You" : member.name, value: member.role + (member.canWrite ? "" : " · View only"))
+                        }
+                        Button(library.zone.scope == .owned ? "Delete library" : "Leave library", role: .destructive) { removing = true }
+                    }
+                }
                 Section("iCloud") {
                     Label(model.status, systemImage: "icloud")
                     Text("Family sharing uses your Apple Account. Only people invited to your library can access it.").foregroundStyle(.secondary)
                     Button("Refresh") { Task { await model.refresh() } }
+                    if !model.snapshot.pending.isEmpty || !(model.snapshot.recovered ?? [:]).isEmpty {
+                        Text("\(model.snapshot.pending.count) pending changes · \((model.snapshot.recovered ?? [:]).count) recovered items").font(.footnote)
+                        Button("Prepare a recovery copy") {
+                            Task {
+                                do {
+                                    let data = try JSONEncoder().encode(try await model.store.read())
+                                    let url = FileManager.default.temporaryDirectory.appendingPathComponent("linkin-recovery.json")
+                                    try data.write(to: url, options: [.atomic, .completeFileProtection]); exportURL = url
+                                } catch { model.error = error.localizedDescription }
+                            }
+                        }
+                        if let exportURL { ShareLink("Export recovery copy", item: exportURL) }
+                    }
                 }
                 Section {
                     LabeledContent("App", value: "linkin 1.0")
@@ -26,6 +50,9 @@ struct FamilyView: View {
                     Label("No advertising or tracking", systemImage: "hand.raised")
                 }
             }.navigationTitle("Family")
+                .confirmationDialog(model.library?.zone.scope == .owned ? "Delete this library and all its links for everyone?" : "Leave this shared library?", isPresented: $removing, titleVisibility: .visible) {
+                    Button(model.library?.zone.scope == .owned ? "Delete library" : "Leave library", role: .destructive) { if let library = model.library { Task { await model.removeLibrary(library) } } }
+                }
                 .alert("New library", isPresented: $newLibrary) {
                     TextField("Library name", text: $name)
                     Button("Create") { Task { _ = await model.createLibrary(name); name = "" } }

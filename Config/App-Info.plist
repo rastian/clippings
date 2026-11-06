@@ -9,6 +9,7 @@
 <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
 <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
 <key>CKSharingSupported</key><true/>
+<key>LinkinCloudEnabled</key><string>$(LINKIN_CLOUD_ENABLED)</string>
 <key>LinkinContainer</key><string>$(LINKIN_CONTAINER)</string>
 <key>LinkinAppGroup</key><string>$(LINKIN_APP_GROUP)</string>
 <key>UIBackgroundModes</key><array><string>remote-notification</string></array>

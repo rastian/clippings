@@ -38,6 +38,7 @@ final class LinkinUITests: XCTestCase {
         app.tabBars.buttons["Mentions"].tap()
         XCTAssertTrue(app.staticTexts["You’re all caught up"].waitForExistence(timeout: 5))
         app.tabBars.buttons["Family"].tap()
+        app.swipeUp()
         XCTAssertTrue(app.staticTexts["No advertising or tracking"].waitForExistence(timeout: 5))
     }
 }

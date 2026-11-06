@@ -26,7 +26,7 @@ struct OnboardingView: View {
                             Task { _ = await model.createLibrary(name); creating = false }
                         } label: { Text(creating ? "Creating…" : "Create a library").frame(maxWidth: .infinity).padding(.vertical, 7) }
                         .buttonStyle(.borderedProminent).disabled(creating || name.trimmingCharacters(in: .whitespaces).isEmpty).accessibilityIdentifier("createLibrary")
-                        Text("Start saving on this device. Family sharing needs iCloud and a configured app.").font(.footnote).foregroundStyle(.secondary)
+                        Text(model.cloud == nil ? "Start saving on this device. iCloud sharing is unavailable in this build." : model.status).font(.footnote).foregroundStyle(.secondary)
                     }
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Have an invitation?").font(.headline)

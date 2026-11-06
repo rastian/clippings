@@ -97,6 +97,7 @@ public struct Snapshot: Codable, Sendable {
     public var items: [String: Item] = [:]
     public var pending: [String: Item] = [:]
     public var zones: [String: ZoneState] = [:]
+    public var recovered: [String: Item]? = [:]
     public var notified: Set<String> = []
     public var settings: [String: String] = [:]
     public init() {}
@@ -116,11 +117,19 @@ public struct Snapshot: Codable, Sendable {
     public mutating func receive(_ remote: Item) throws {
         let merged = try items[remote.key]?.merging(remote) ?? remote
         guard remote.schema <= Item.schemaVersion else { throw LinkinError.incompatibleSchema }
+        if let queued = pending[remote.key], queued.fields.contains(where: { key, field in
+            field.actor == actor && field.clock == queued.revision && merged.fields[key]?.value != field.value
+        }) {
+            recovered = recovered ?? [:]; recovered?[queued.key] = queued
+        }
         items[remote.key] = merged; clock = max(clock, merged.revision)
         if pending[remote.key] != nil { pending[remote.key] = merged }
     }
     public mutating func acknowledge(_ sent: Item, saved: Item) throws {
         // An edit made during an upload must stay in the outbox.
+        if sent.fields.contains(where: { key, field in
+            field.actor == actor && field.clock == sent.revision && saved.fields[key]?.value != field.value
+        }) { recovered = recovered ?? [:]; recovered?[sent.key] = sent }
         if pending[sent.key] == sent { pending.removeValue(forKey: sent.key) }
         try receive(saved)
     }

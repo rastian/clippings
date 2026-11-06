@@ -14,3 +14,5 @@ GitHub Actions runs these suites on macOS on pull requests and pushes to main. I
 
 Foundation: simulator build succeeded; 5 domain tests passed.
 Local application: 9 domain/persistence tests passed. All 3 iPhone UI scenarios passed (onboarding/collection/link saving, invalid URL, tabs and empty mentions).
+
+Sharing milestone: 15 core tests passed, including controlled offline/expiry/revocation/account-switch scenarios; 17 iOS unit tests passed including CloudKit record mapping. All 3 UI scenarios passed after adding the sharing lifecycle (the Family test scrolls to the expanded settings footer). Real CloudKit remains unverified until the configuration and two-account device procedure are completed.

@@ -44,4 +44,15 @@ final class DomainTests: XCTestCase {
         XCTAssertThrowsError(try state.receive(item))
         XCTAssertTrue(state.items.isEmpty)
     }
+    func testLosingConcurrentEditIsRecoverable() throws {
+        var state = Snapshot(); state.actor = "a"
+        let item = Item(id: "conflict", kind: .link, zone: Zone(name: "family"))
+        let queued = state.edit(item, values: ["title": "My title"])
+        var remote = queued
+        remote.fields["title"] = Field("Their title", clock: queued.revision, actor: "z")
+        try state.receive(remote)
+        XCTAssertEqual(state.items[item.key]?.title, "Their title")
+        XCTAssertEqual(state.recovered?[item.key]?.title, "My title")
+    }
+
 }

@@ -47,6 +47,7 @@ struct LibraryView: View {
         } detail: {
             LinkListView(collection: selection == "all" ? nil : selection, oldest: $oldest, addingLink: $addingLink)
         }
+        .onChange(of: model.library?.key) { _, _ in selection = nil }
         .sheet(isPresented: $addingLink) { AddLinkView(collection: selection == "all" || selection == "unfiled" ? nil : selection) }
         .sheet(isPresented: $addingCollection) { CollectionEditor() }
         .sheet(item: $editingCollection) { CollectionEditor(item: $0) }

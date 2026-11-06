@@ -12,6 +12,7 @@ struct LinkDetailView: View {
     @State private var metadata: LPLinkMetadata?
     @State private var deleting = false
     @State private var edited = false
+    private var canWrite: Bool { model.snapshot.zones[item.zone.key]?.canWrite != false }
     private var current: Item { model.snapshot.items[item.key] ?? item }
     var body: some View {
         Form {
@@ -31,7 +32,7 @@ struct LinkDetailView: View {
                     Text("Unfiled").tag(String?.none)
                     ForEach(model.snapshot.visible(.collection, zone: item.zone).sorted { $0.title < $1.title }) { Text($0.title).tag(Optional($0.id)) }
                 }.accessibilityIdentifier("moveCollection").onChange(of: collection) { _, _ in edited = true }
-            }
+            }.disabled(!canWrite)
             Section {
                 TextField("Something to remember…", text: $note, axis: .vertical).lineLimit(3...8).accessibilityIdentifier("personalNote").onChange(of: note) { _, _ in edited = true }
             } header: { Text("Your private note") } footer: { Text("Only you can see this note. It stays in your private iCloud storage.") }
@@ -39,14 +40,16 @@ struct LinkDetailView: View {
                 LabeledContent("Added by", value: authorName)
                 LabeledContent("Saved", value: current.date.formatted(date: .abbreviated, time: .shortened))
             }
-            Section { Button("Delete link", role: .destructive) { deleting = true }.accessibilityIdentifier("deleteLink") }
+            if canWrite { Section { Button("Delete link", role: .destructive) { deleting = true }.accessibilityIdentifier("deleteLink") } }
         }.navigationTitle("Saved link").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save changes") {
                         Task {
                             do {
-                                try await model.service.update(current, values: ["title": title, "summary": summary, "collection": collection, "updated": String(Date().timeIntervalSince1970)])
+                                if canWrite {
+                                    try await model.service.update(current, values: ["title": title, "summary": summary, "collection": collection, "updated": String(Date().timeIntervalSince1970)])
+                                }
                                 try await model.service.saveNote(for: current, text: note, userID: model.userID)
                                 await model.refresh(); edited = false
                             } catch { model.error = error.localizedDescription }

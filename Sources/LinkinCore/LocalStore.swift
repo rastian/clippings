@@ -19,7 +19,17 @@ public actor LocalStore {
         defer { sqlite3_close(db) }
         sqlite3_busy_timeout(db, 5_000)
         func execute(_ sql: String) throws {
-            guard sqlite3_exec(db, sql, nil, nil, nil) == SQLITE_OK else { throw LinkinError.storage("Your saved links could not be updated. Please try again.") }
+            // journal_mode can return BUSY without invoking SQLite's busy handler when
+            // two processes initialize a new store together. Retry that lock transition.
+            for attempt in 0..<6 {
+                let code = sqlite3_exec(db, sql, nil, nil, nil)
+                if code == SQLITE_OK { return }
+                guard code == SQLITE_BUSY || code == SQLITE_LOCKED else {
+                    throw LinkinError.storage("Your saved links could not be updated. Please try again.")
+                }
+                if attempt < 5 { sqlite3_sleep(Int32(20 * (attempt + 1))) }
+            }
+            throw LinkinError.storage("Your library is busy saving another change. Please try again.")
         }
         try execute("PRAGMA journal_mode=WAL")
         try execute("PRAGMA synchronous=FULL")
