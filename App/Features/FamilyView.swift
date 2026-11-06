@@ -30,6 +30,8 @@ struct FamilyView: View {
                     Label(model.status, systemImage: "icloud")
                     Text("Family sharing uses your Apple Account. Only people invited to your library can access it.").foregroundStyle(.secondary)
                     Button("Refresh") { Task { await model.refresh() } }
+                    Button("Enable mention notifications") { Task { await model.enableNotifications() } }
+                    Text("Only explicit mentions create alerts. Delivery depends on iOS background access; unread mentions always refresh when you open linkin.").font(.footnote).foregroundStyle(.secondary)
                     if !model.snapshot.pending.isEmpty || !(model.snapshot.recovered ?? [:]).isEmpty {
                         Text("\(model.snapshot.pending.count) pending changes · \((model.snapshot.recovered ?? [:]).count) recovered items").font(.footnote)
                         Button("Prepare a recovery copy") {
@@ -69,7 +71,7 @@ struct MentionsView: View {
                 ForEach(model.unread) { mention in
                     if let link = model.snapshot.items["\(mention.zone.key)|\(mention["link"])"] {
                         NavigationLink { LinkDetailView(item: link) } label: { LinkRow(item: link) }
-                            .swipeActions { Button("Mark read", systemImage: "checkmark") { Task { await model.perform { try await model.service.update(mention, values: ["read": "true"]) } } }.tint(Design.accent) }
+                            .swipeActions { Button("Mark read", systemImage: "checkmark") { Task { await model.perform { try await model.service.markRead(mention, userID: model.userID) } } }.tint(Design.accent) }
                     }
                 }
             }.overlay { if model.unread.isEmpty { ContentUnavailableView("You’re all caught up", systemImage: "at", description: Text("When someone saves a link with you in mind, you’ll find it here.")) } }

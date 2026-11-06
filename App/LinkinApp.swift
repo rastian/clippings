@@ -33,6 +33,7 @@ struct LinkinApp: App {
 }
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @State private var notificationLink: Item?
     var body: some View {
         @Bindable var model = model
         Group {
@@ -52,6 +53,11 @@ struct RootView: View {
                 }
             }
         }
+        .onChange(of: AppEvents.shared.selectedLinkKey) { _, _ in presentPendingNotification() }
+        .onChange(of: model.snapshot.items.count) { _, _ in presentPendingNotification() }
+        .sheet(item: $notificationLink) { item in
+            NavigationStack { LinkDetailView(item: item).toolbar { ToolbarItem(placement: .cancellationAction) { Button("Done") { notificationLink = nil } } } }
+        }
         .sheet(item: $model.sharingSheet) { sheet in
             CloudSharingView(sheet: sheet, onFinish: { Task { await model.refresh() } }, onError: { model.error = $0 })
         }
@@ -63,4 +69,10 @@ struct RootView: View {
             Button("OK") { model.error = nil }
         } message: { Text(model.error ?? "") }
     }
+    private func presentPendingNotification() {
+        if !model.accountBlocked, let key = AppEvents.shared.selectedLinkKey, let item = model.snapshot.items[key], !item.deleted {
+            notificationLink = item; AppEvents.shared.selectedLinkKey = nil
+        }
+    }
+
 }

@@ -17,6 +17,8 @@ final class AppModel {
     var sharingSheet: SharingSheet?
     let cloud: AppleCloudRepository?
     let engine: SyncEngine?
+    let mentions: MentionProcessor
+    private var subscribed = false
     private var networkMonitor: NWPathMonitor?
     private var retryTask: Task<Void, Never>?
     private var failures = 0
@@ -25,11 +27,19 @@ final class AppModel {
     var unread: [Item] { LinkRules.unreadMentions(in: snapshot, userID: userID) }
     init(store: LocalStore = Configuration.store) {
         self.store = store; service = LibraryService(store: store)
+        mentions = MentionProcessor(store: store, notifier: AppleMentionNotifier())
         let cloud = Configuration.cloudAvailable ? AppleCloudRepository() : nil
         self.cloud = cloud; engine = cloud.map { SyncEngine(store: store, cloud: $0) }
     }
     func start() async {
         AppEvents.shared.refresh = { [weak self] in await self?.refresh() }
+        AppEvents.shared.backgroundRefresh = { [weak self] in
+            guard let self else { return false }
+            let previous = snapshot.items
+            await refresh()
+            return previous != snapshot.items
+        }
+        if cloud != nil { UIApplication.shared.registerForRemoteNotifications() }
         if cloud != nil && networkMonitor == nil {
             let monitor = NWPathMonitor()
             monitor.pathUpdateHandler = { [weak self] path in
@@ -55,6 +65,8 @@ final class AppModel {
             try await engine.synchronize()
             accountBlocked = false; failures = 0; retryTask?.cancel()
             await load()
+            try await mentions.process(userID: userID)
+            if !subscribed, let cloud { try await cloud.subscribe(); subscribed = true }
             let pending = snapshot.pending.count
             status = pending == 0 ? "Up to date with iCloud" : "\(pending) changes waiting to sync"
         } catch {

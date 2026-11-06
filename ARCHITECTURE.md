@@ -21,3 +21,11 @@ Private notes reference the local canonical library scope/zone/record key and li
 ## Share Extension
 
 The extension reads at most 12 providers, prefers URL attachments, then detects a URL in bounded plain text. It does not crawl or store webpages. Both processes use the same SQLite store and transaction/outbox code. Each presentation has a stable operation ID; canonical URL matching also prevents repeated saves in the same library. Save commits locally first. A foreground synchronization attempt has a ten-second UI budget; early dismissal or process termination leaves the durable queue for the next app/extension sync. No background execution guarantee is assumed. Metadata extraction is kept out of the extension's critical save path.
+
+## Mentions and notifications
+
+Mentions are separate records with stable recipient/author IDs. A local notification is eligible only when the current user is the recipient, is not the author, the link still exists, the mention is unread, and it has not been delivered on this device. A stable request ID plus pending/delivered checks covers reprocessing. Failed or denied notification scheduling does not mark the mention delivered. Read receipts are separate records in the recipient's unshared personal zone, so view-only participants can mark mentions read and another device can remove an obsolete alert after syncing.
+
+Private/shared CKDatabaseSubscriptions send content-available pushes with no alert text, sound or badge. The app fetches changes before deciding whether a local alert is relevant. Foreground notifications are not presented over the UI. A remote-fetch callback is completed once, with a twenty-second deadline; the durable queue does not depend on completion. Opening a notification routes to the cached/synced saved link. Invitations use Apple's native CloudKit sharing delivery, not a separate notification service.
+
+APNs, local notification authorization, background scheduling, user force-quit and network access all affect delivery. A notification can be delayed or absent. Foreground and manual refresh always reconcile unread mentions. There is a narrow cross-service crash window between notification scheduling and the local delivery ledger; stable IDs and delivered-request inspection mitigate it, but no exactly-once delivery guarantee is claimed.

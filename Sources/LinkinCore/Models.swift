@@ -16,7 +16,7 @@ public enum LinkinError: Error, LocalizedError, Equatable, Sendable {
     }
 }
 
-public enum RecordKind: String, Codable, Sendable { case library, collection, link, mention, note }
+public enum RecordKind: String, Codable, Sendable { case library, collection, link, mention, note, receipt }
 public enum DatabaseScope: String, Codable, Sendable { case owned, shared }
 public struct Zone: Codable, Hashable, Sendable {
     public var name: String

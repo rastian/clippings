@@ -18,3 +18,5 @@ Local application: 9 domain/persistence tests passed. All 3 iPhone UI scenarios 
 Sharing milestone: 15 core tests passed, including controlled offline/expiry/revocation/account-switch scenarios; 17 iOS unit tests passed including CloudKit record mapping. All 3 UI scenarios passed after adding the sharing lifecycle (the Family test scrolls to the expanded settings footer). Real CloudKit remains unverified until the configuration and two-account device procedure are completed.
 
 Share Extension milestone: app and embedded extension build passed with Swift 6 strict concurrency; all 16 portable tests passed, including URL/caption extraction and unsupported-content cases. Real Safari/YouTube/Instagram/Reddit share-sheet testing needs the signed App Group build; the unsigned build cannot prove cross-process entitlement access.
+
+Notification milestone: all 23 iOS unit tests passed, including five notification/read-receipt tests; the app and extension compile without Swift concurrency warnings. These tests exercise controlled notification adapters, not APNs delivery.

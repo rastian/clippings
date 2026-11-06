@@ -44,8 +44,9 @@ public enum LinkRules {
         }
     }
     public static func unreadMentions(in state: Snapshot, userID: String) -> [Item] {
-        state.visible(.mention).filter {
-            $0["recipient"] == userID && $0["author"] != userID && $0["read"] != "true" &&
+        let read = Set(state.visible(.receipt).map { $0["mention"] })
+        return state.visible(.mention).filter {
+            !read.contains($0.key) && $0["recipient"] == userID && $0["author"] != userID && $0["read"] != "true" &&
             state.items["\($0.zone.key)|\($0["link"])"]?.deleted == false
         }.sorted { $0.date > $1.date }
     }

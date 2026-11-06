@@ -75,6 +75,13 @@ public struct LibraryService: Sendable {
             _ = state.edit(note, values: ["link": link.key, "text": String(text.prefix(10_000)), "author": userID])
         }
     }
+    public func markRead(_ mention: Item, userID: String) async throws {
+        guard mention.kind == .mention, mention["recipient"] == userID else { throw LinkinError.readOnly }
+        try await store.transaction { state in
+            let receipt = Item(id: "read-" + mention.id, kind: .receipt, zone: Zone(name: "linkin-personal"))
+            _ = state.edit(receipt, values: ["mention": mention.key, "author": userID, "read": "true"])
+        }
+    }
     static func validateLibrary(_ library: Item, state: Snapshot) throws {
         guard state.items[library.key]?.deleted == false, state.zones[library.zone.key]?.available != false else { throw LinkinError.missingLibrary }
         guard state.zones[library.zone.key]?.canWrite != false else { throw LinkinError.readOnly }
