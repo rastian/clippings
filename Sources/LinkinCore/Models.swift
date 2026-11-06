@@ -9,7 +9,7 @@ public enum LinkinError: Error, LocalizedError, Equatable, Sendable {
         case .emptyName: "Please enter a name."
         case .missingLibrary: "Choose an available family library."
         case .readOnly: "You have view-only access to this library."
-        case .incompatibleSchema: "This library needs a newer version of linkin. Please update the app."
+        case .incompatibleSchema: "This library needs a newer version of Clippings. Please update the app."
         case .accountChanged: "Your iCloud account changed. Your previous account’s pending changes are preserved on this device. Sign back in to sync them."
         case .storage(let message), .cloud(let message), .validation(let message): message
         }

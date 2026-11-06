@@ -1,8 +1,8 @@
-# linkin
+# Clippings
 
 **Your family’s corner of the internet.**
 
-A native iPhone and iPad app for keeping the links your family wants to come back to. Built with Swift 6, SwiftUI and Apple's CloudKit sharing infrastructure. iOS 17 and later. No linkin account, custom backend, advertising, subscription or third-party analytics.
+A native iPhone and iPad app for keeping the links your family wants to come back to. Built with Swift 6, SwiftUI and Apple's CloudKit sharing infrastructure. iOS 17 and later. No Clippings account, custom backend, advertising, subscription or third-party analytics.
 
 ## What is implemented
 
@@ -22,6 +22,8 @@ A native iPhone and iPad app for keeping the links your family wants to come bac
 3. Run. The default build stores links locally and leaves iCloud disabled until you configure your own Apple Developer resources.
 
 No external packages are required. The committed Xcode project includes the app, Share Extension, unit-test and UI-test targets. Do not use a web server: this is a native iOS app.
+
+The app and Share Extension display as **Clippings**. The existing `linkin` project, scheme, bundle identifiers and storage identifiers are retained so the rename preserves signing configuration and existing data.
 
 For real family sharing, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig`, enter your registered team/bundle/container/group values, enable cloud access, and follow [CLOUDKIT_SETUP.md](CLOUDKIT_SETUP.md). That local file is ignored by Git. Both app and extension must be provisioned for the same App Group and CloudKit container.
 

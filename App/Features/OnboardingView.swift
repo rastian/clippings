@@ -30,10 +30,10 @@ struct OnboardingView: View {
                     }
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Have an invitation?").font(.headline)
-                        Text("Open the iCloud invitation from your family in Messages or Mail. linkin will help you join.").font(.subheadline).foregroundStyle(.secondary)
+                        Text("Open the iCloud invitation from your family in Messages or Mail. Clippings will help you join.").font(.subheadline).foregroundStyle(.secondary)
                     }
                 }.frame(maxWidth: 520).padding(28).frame(maxWidth: .infinity)
-            }.navigationTitle("linkin").navigationBarTitleDisplayMode(.inline)
+            }.navigationTitle("Clippings").navigationBarTitleDisplayMode(.inline)
         }
     }
 }

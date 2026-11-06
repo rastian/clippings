@@ -39,7 +39,7 @@ final class ShareModel {
     var userID: String { snapshot.accountID ?? "local-user" }
     func load(items: [NSExtensionItem]) async {
         defer { loading = false }
-        guard Configuration.groupURL != nil else { error = "Your libraries aren’t available in this build. Open linkin to finish setting up family sharing."; return }
+        guard Configuration.groupURL != nil else { error = "Your libraries aren’t available in this build. Open Clippings to finish setting up family sharing."; return }
         do {
             snapshot = try await store.read(); libraryKey = writableLibraries.first?.key ?? ""
             let providers = items.flatMap { $0.attachments ?? [] }
@@ -63,16 +63,16 @@ final class ShareModel {
             let service = LibraryService(store: store)
             _ = try await service.saveLink(url: url, title: title, collection: collection, library: library, userID: userID, recipients: recipients, operationID: operationID)
             saved = true; message = "Saved to \(library.title)."
-            guard Configuration.cloudAvailable else { message += " It will sync when linkin is connected to iCloud."; return }
+            guard Configuration.cloudAvailable else { message += " It will sync when Clippings is connected to iCloud."; return }
             syncing = true
             let engine = SyncEngine(store: store, cloud: AppleCloudRepository())
             let upload = Task { try await engine.synchronize() }
             let deadline = Task { @MainActor in
                 try await Task.sleep(for: .seconds(10))
-                if syncing { upload.cancel(); syncing = false; message = "Saved on this device. Sync will continue when linkin is next active." }
+                if syncing { upload.cancel(); syncing = false; message = "Saved on this device. Sync will continue when Clippings is next active." }
             }
             do { try await upload.value; if syncing { message = "Saved to \(library.title) and synced with iCloud." } }
-            catch { message = "Saved on this device. Sync will retry when linkin is next active." }
+            catch { message = "Saved on this device. Sync will retry when Clippings is next active." }
             deadline.cancel(); syncing = false
         } catch { self.error = error.localizedDescription }
     }
@@ -96,7 +96,7 @@ struct ShareForm: View {
                     } actions: { Button("Done", action: complete).buttonStyle(.borderedProminent) }
                 }
                 else if model.writableLibraries.isEmpty {
-                    ContentUnavailableView("A family library comes first", systemImage: "person.2", description: Text("Open linkin once to create a library or accept an invitation with permission to add links. Then share again."))
+                    ContentUnavailableView("A family library comes first", systemImage: "person.2", description: Text("Open Clippings once to create a library or accept an invitation with permission to add links. Then share again."))
                 } else {
                     Form {
                         Section("Link") {
@@ -125,7 +125,7 @@ struct ShareForm: View {
                         }
                     }
                 }
-            }.navigationTitle("Save to linkin").navigationBarTitleDisplayMode(.inline)
+            }.navigationTitle("Save to Clippings").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button(model.saved ? "Done" : "Cancel", action: model.saved ? complete : cancel) }
                     if !model.saved {

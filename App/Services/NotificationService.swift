@@ -16,7 +16,7 @@ struct AppleMentionNotifier: MentionNotifying {
         if pending.contains(where: { $0.identifier == key }) || delivered.contains(where: { $0.request.identifier == key }) { return true }
         let content = UNMutableNotificationContent()
         content.title = "A link with you in mind"
-        content.body = "Someone in your family mentioned you. Open linkin to see their find."
+        content.body = "Someone in your family mentioned you. Open Clippings to see their find."
         content.sound = .default
         content.userInfo = ["linkKey": linkKey]
         try await center.add(UNNotificationRequest(identifier: key, content: content, trigger: nil))
@@ -49,7 +49,7 @@ extension AppModel {
         do {
             let allowed = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
             if allowed { UIApplication.shared.registerForRemoteNotifications(); await refresh() }
-            else { error = "Notifications are off. You can enable them for linkin in Settings. Your mentions are always available in the app." }
+            else { error = "Notifications are off. You can enable them for Clippings in Settings. Your mentions are always available in the app." }
         } catch { self.error = error.localizedDescription }
     }
 }

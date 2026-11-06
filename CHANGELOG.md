@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.0.0 — in development
+- Renamed the app and Share Extension to Clippings, including onboarding, notifications, settings and recovery exports. Existing app and storage identifiers are preserved.
+- Adopted Xcode's recommended shared build settings and updated the project generator to preserve them. Personal signing configuration stays in the ignored local configuration file.
 - Foundation: native Xcode project, Swift 6 domain, deterministic conflicts and URL validation, initial tests and macOS CI.
 - Local app: durable SQLite store and outbox, library and collection management, URL saving, search and sorting, private notes, cached LinkPresentation previews, adaptive native navigation and original app icon.
 - Sharing: manual CloudKit synchronization, zone-wide private CKShare, native participant management and invitation acceptance, permissions, account isolation, change-token recovery and recoverable conflict archives.

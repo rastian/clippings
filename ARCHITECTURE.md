@@ -1,4 +1,4 @@
-# linkin architecture
+# Clippings architecture
 
 Native SwiftUI, iOS 17+, Swift 6 strict concurrency. Three tabs: Library (collections, search, saved links), Mentions (explicit mentions only), and Family (libraries, participants, settings). NavigationSplitView adapts the library to iPad. System typography and SF Symbols, semantic grouped backgrounds, restrained evergreen accent, native forms, sheets and confirmation dialogs.
 

@@ -31,14 +31,14 @@ struct FamilyView: View {
                     Text("Family sharing uses your Apple Account. Only people invited to your library can access it.").foregroundStyle(.secondary)
                     Button("Refresh") { Task { await model.refresh() } }
                     Button("Enable mention notifications") { Task { await model.enableNotifications() } }
-                    Text("Only explicit mentions create alerts. Delivery depends on iOS background access; unread mentions always refresh when you open linkin.").font(.footnote).foregroundStyle(.secondary)
+                    Text("Only explicit mentions create alerts. Delivery depends on iOS background access; unread mentions always refresh when you open Clippings.").font(.footnote).foregroundStyle(.secondary)
                     if !model.snapshot.pending.isEmpty || !(model.snapshot.recovered ?? [:]).isEmpty {
                         Text("\(model.snapshot.pending.count) pending changes · \((model.snapshot.recovered ?? [:]).count) recovered items").font(.footnote)
                         Button("Prepare a recovery copy") {
                             Task {
                                 do {
                                     let data = try JSONEncoder().encode(try await model.store.read())
-                                    let url = FileManager.default.temporaryDirectory.appendingPathComponent("linkin-recovery.json")
+                                    let url = FileManager.default.temporaryDirectory.appendingPathComponent("clippings-recovery.json")
                                     try data.write(to: url, options: [.atomic, .completeFileProtection]); exportURL = url
                                 } catch { model.error = error.localizedDescription }
                             }
@@ -47,7 +47,7 @@ struct FamilyView: View {
                     }
                 }
                 Section {
-                    LabeledContent("App", value: "linkin 1.0")
+                    LabeledContent("App", value: "Clippings 1.0")
                     Text("Your family’s corner of the internet.").foregroundStyle(.secondary)
                     Label("No advertising or tracking", systemImage: "hand.raised")
                 }
