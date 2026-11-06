@@ -4,7 +4,7 @@ import CloudKit
 @main
 struct ClippingsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var model = AppModel()
+    @State private var model = AppModel.shared
     @Environment(\.scenePhase) private var scenePhase
     var body: some Scene {
         WindowGroup {

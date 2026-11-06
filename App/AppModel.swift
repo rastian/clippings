@@ -6,6 +6,7 @@ import os
 
 @MainActor @Observable
 final class AppModel {
+    static let shared = AppModel()
     let store: LocalStore
     let service: LibraryService
     private let metadata: any MetadataProviding
@@ -28,21 +29,14 @@ final class AppModel {
     var userID: String { snapshot.accountID ?? "local-user" }
     var library: Item? { snapshot.libraries.first { $0.key == selectedLibraryKey } ?? snapshot.libraries.first }
     var unread: [Item] { LinkRules.unreadMentions(in: snapshot, userID: userID) }
-    init(store: LocalStore = Configuration.store, metadata: any MetadataProviding = MetadataService.shared) {
+    init(store: LocalStore = Configuration.store, metadata: any MetadataProviding = MetadataService.shared,
+         syncEngine: SyncEngine? = nil, notifier: any MentionNotifying = AppleMentionNotifier()) {
         self.store = store; self.metadata = metadata; service = LibraryService(store: store)
-        mentions = MentionProcessor(store: store, notifier: AppleMentionNotifier())
-        let cloud = Configuration.cloudAvailable ? AppleCloudRepository() : nil
-        self.cloud = cloud; engine = cloud.map { SyncEngine(store: store, cloud: $0) }
+        mentions = MentionProcessor(store: store, notifier: notifier)
+        let cloud = syncEngine == nil && Configuration.cloudAvailable ? AppleCloudRepository() : nil
+        self.cloud = cloud; engine = syncEngine ?? cloud.map { SyncEngine(store: store, cloud: $0) }
     }
     func start() async {
-        AppEvents.shared.refresh = { [weak self] in await self?.refresh() }
-        AppEvents.shared.backgroundRefresh = { [weak self] in
-            guard let self else { return false }
-            let previous = snapshot.items
-            await refresh()
-            return previous != snapshot.items
-        }
-        if cloud != nil { UIApplication.shared.registerForRemoteNotifications() }
         if cloud != nil && networkMonitor == nil {
             let monitor = NWPathMonitor()
             monitor.pathUpdateHandler = { [weak self] path in
@@ -51,6 +45,12 @@ final class AppModel {
             monitor.start(queue: DispatchQueue(label: "app.clippings.connectivity")); networkMonitor = monitor
         }
         await refresh()
+    }
+    /// A CloudKit wake can arrive before SwiftUI creates a screen or calls start().
+    func refreshFromNotification() async -> Bool {
+        let previous = snapshot.items
+        await refresh()
+        return previous != snapshot.items
     }
     func load() async {
         do { snapshot = try await store.read(); loaded = true }

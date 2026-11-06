@@ -4,6 +4,15 @@ import CryptoKit
 import UIKit
 import os
 
+enum MentionNotificationPresentation {
+    static let category = "clippings.mention"
+    static func options(for content: UNNotificationContent) -> UNNotificationPresentationOptions {
+        guard content.categoryIdentifier == category,
+              let linkKey = content.userInfo["linkKey"] as? String, !linkKey.isEmpty else { return [] }
+        return [.banner, .list, .sound]
+    }
+}
+
 struct AppleMentionNotifier: MentionNotifying {
     private func identifier(_ id: String) -> String { "mention-" + SHA256.hash(data: Data(id.utf8)).map { String(format: "%02x", $0) }.joined() }
     func schedule(id: String, linkKey: String) async throws -> Bool {
@@ -15,6 +24,7 @@ struct AppleMentionNotifier: MentionNotifying {
         let delivered = await center.deliveredNotifications()
         if pending.contains(where: { $0.identifier == key }) || delivered.contains(where: { $0.request.identifier == key }) { return true }
         let content = UNMutableNotificationContent()
+        content.categoryIdentifier = MentionNotificationPresentation.category
         content.title = "A link with you in mind"
         content.body = "Someone in your family mentioned you. Open Clippings to see their find."
         content.sound = .default

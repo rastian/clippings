@@ -31,7 +31,7 @@ struct FamilyView: View {
                     Text("Family sharing uses your Apple Account. Only people invited to your library can access it.").foregroundStyle(.secondary)
                     Button("Refresh") { Task { await model.refresh() } }
                     Button("Enable mention notifications") { Task { await model.enableNotifications() } }
-                    Text("Only explicit mentions create alerts. Delivery depends on iOS background access; unread mentions always refresh when you open Clippings.").font(.footnote).foregroundStyle(.secondary)
+                    Text("Only mentions create alerts. iOS may delay background updates; swiping Clippings closed pauses them until you reopen it.").font(.footnote).foregroundStyle(.secondary)
                     if !model.snapshot.pending.isEmpty || !(model.snapshot.recovered ?? [:]).isEmpty {
                         Text("\(model.snapshot.pending.count) pending changes · \((model.snapshot.recovered ?? [:]).count) recovered items").font(.footnote)
                         Button("Prepare a recovery copy") {

@@ -10,15 +10,14 @@ final class AppEvents {
     var invitation: CKShare.Metadata?
     var invitationError: String?
     var selectedLinkKey: String?
-    var refresh: (@MainActor () async -> Void)?
-    var backgroundRefresh: (@MainActor () async -> Bool)?
-    func openMention(_ key: String?) async { await refresh?(); selectedLinkKey = key }
+    func openMention(_ key: String?) async { await AppModel.shared.refresh(); selectedLinkKey = key }
     func receive(_ metadata: CKShare.Metadata) { invitation = metadata }
 }
 
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        if Configuration.cloudAvailable { application.registerForRemoteNotifications() }
         return true
     }
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
@@ -28,7 +27,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
             let deadline = Task { @MainActor in
                 do { try await Task.sleep(for: .seconds(20)); completion.finish(.noData) } catch {}
             }
-            let changed = await AppEvents.shared.backgroundRefresh?() ?? false
+            let changed = await AppModel.shared.refreshFromNotification()
             deadline.cancel(); completion.finish(changed ? .newData : .noData)
         }
     }
@@ -40,7 +39,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         await AppEvents.shared.openMention(key)
     }
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        [] // The foreground Mentions tab updates without interrupting the current task.
+        MentionNotificationPresentation.options(for: notification.request.content)
     }
     func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
         AppEvents.shared.receive(cloudKitShareMetadata)
