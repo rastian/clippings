@@ -53,6 +53,63 @@ final class ClippingsUITests: XCTestCase {
 }
 
 extension ClippingsUITests {
+    func testSwipeDeleteConfirmationStaysWithScrolledCard() {
+        app.terminate()
+        app.launchArguments = standardArguments + ["--reset", "--shared-library", "--swipe-cards"]
+        app.launch()
+        let card = app.buttons["clipping-clipping-2"]
+        XCTAssertTrue(app.buttons["clipping-pasta"].waitForExistence(timeout: 10))
+        app.swipeUp()
+        XCTAssertTrue(card.isHittable)
+        // A short swipe reveals the action without triggering a full swipe.
+        card.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
+            .press(forDuration: 0.1, thenDragTo: card.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)))
+        XCTAssertTrue(app.buttons["Delete"].waitForExistence(timeout: 5))
+        keepScreenshot("Red swipe action")
+        app.buttons["Delete"].tap()
+        let confirm = app.buttons["Delete link"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        keepScreenshot("Confirmation on scrolled card")
+        // On popover presentations the confirmation must sit beside the selected row,
+        // not above the list's section header. Sheets on older iOS are also valid.
+        XCTAssertGreaterThan(confirm.frame.midY, card.frame.maxY)
+        dismissDeleteConfirmation()
+        XCTAssertTrue(card.isHittable)
+        card.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5))
+            .press(forDuration: 0.1, thenDragTo: card.coordinate(withNormalizedOffset: CGVector(dx: 0.05, dy: 0.5)))
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        XCTAssertTrue(card.exists, "A full swipe must not remove the card before confirmation")
+        confirm.tap()
+        let removed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: card)
+        XCTAssertEqual(XCTWaiter.wait(for: [removed], timeout: 5), .completed)
+        XCTAssertTrue(app.buttons["clipping-clipping-3"].exists)
+    }
+    func testReadOnlyCardsHaveNoSwipeDelete() {
+        app.terminate()
+        app.launchArguments = standardArguments + ["--reset", "--shared-library", "--read-only"]
+        app.launch()
+        let card = app.buttons["clipping-pasta"]
+        XCTAssertTrue(card.waitForExistence(timeout: 10))
+        card.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
+            .press(forDuration: 0.1, thenDragTo: card.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)))
+        XCTAssertFalse(app.buttons["Delete"].exists)
+        XCTAssertFalse(app.buttons["Delete link"].exists)
+        // With no swipe action, SwiftUI may treat the gesture as opening the card.
+        if app.buttons["mentionSomeone"].waitForExistence(timeout: 2) {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+        }
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+    }
+    private func dismissDeleteConfirmation() {
+        if app.buttons["Cancel"].exists { app.buttons["Cancel"].tap() }
+        else { app.navigationBars.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap() }
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.buttons["Delete link"])
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 5), .completed)
+    }
+    private func keepScreenshot(_ name: String) {
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = name; screenshot.lifetime = .keepAlways; add(screenshot)
+    }
     func testNewspaperCards() {
             app.terminate()
             app.launchArguments = standardArguments + ["--reset", "--shared-library"]

@@ -20,6 +20,15 @@ extension Configuration {
                 "created": String(Date().timeIntervalSince1970),
                 "summary": "A few good tomatoes and a little patience make a meal worth sharing. Bring everyone to the table for a slow Sunday lunch."
             ])
+            if arguments.contains("--swipe-cards") {
+                for index in 1...4 {
+                    _ = state.edit(Item(id: "clipping-\(index)", kind: .link, zone: zone), values: [
+                        "title": "Sunday read \(index)", "url": "https://example.com/read-\(index)", "domain": "example.com", "author": "owner",
+                        "created": String(Date().timeIntervalSince1970 - Double(index * 60)),
+                        "summary": "A good story is worth keeping for another day. Settle in with the Sunday paper and discover something new to share with everyone at the table."
+                    ])
+                }
+            }
             state.zones[zone.key]?.members = [
                 Member(id: "owner", name: "Alex", role: "Owner", canWrite: true),
                 Member(id: "participant", name: "Sam", role: "Member", canWrite: !readOnly)

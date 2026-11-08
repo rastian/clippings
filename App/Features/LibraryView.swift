@@ -65,7 +65,6 @@ struct LinkListView: View {
     @Binding var addingLink: Bool
     var showCollections: (() -> Void)? = nil
     @State private var query = ""
-    @State private var deleting: Item?
     @State private var selectedLink: Item?
     private var links: [Item] {
         guard let library = model.library else { return [] }
@@ -79,16 +78,9 @@ struct LinkListView: View {
                     NewspaperMasthead().listRowBackground(Color.clear).listRowSeparator(.hidden)
                     Section {
                         ForEach(Array(links.enumerated()), id: \.element.id) { index, link in
-                            Button { selectedLink = link } label: { ClippingCard(item: link, featured: index < 5) }
-                                .buttonStyle(.plain)
+                            ClippingListRow(link: link, featured: index < 5) { selectedLink = link }
                                 .listRowBackground(Color.clear).listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 0, leading: 18, bottom: 16, trailing: 18))
-                                .contextMenu {
-                                    if let url = URL(string: link["url"]) { ShareLink(item: url) }
-                                    Button("Copy link", systemImage: "doc.on.doc") { UIPasteboard.general.string = link["url"] }
-                                    if model.snapshot.zones[link.zone.key]?.canWrite != false { Button("Delete link", systemImage: "trash", role: .destructive) { deleting = link } }
-                                }
-                                .swipeActions { if model.snapshot.zones[link.zone.key]?.canWrite != false { Button("Delete", role: .destructive) { deleting = link } } }
                         }
                     } header: {
                         ViewThatFits(in: .horizontal) {
@@ -121,10 +113,43 @@ struct LinkListView: View {
                     Button { addingLink = true } label: { Label("Add link", systemImage: "plus") }.accessibilityIdentifier(showCollections == nil ? "addLinkDetail" : "addLink").disabled(model.library.map { model.snapshot.zones[$0.zone.key]?.canWrite == false } ?? true)
                 }
             }.refreshable { await model.refresh() }
-            .confirmationDialog("Delete this link for everyone?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible, presenting: deleting) { item in
-                Button("Delete link", role: .destructive) { Task { await model.perform { try await model.service.delete(item) } } }
-            }
         }
+    }
+}
+
+private struct ClippingListRow: View {
+    @Environment(AppModel.self) private var model
+    let link: Item
+    let featured: Bool
+    let open: () -> Void
+    @State private var confirmingDelete = false
+    private var canWrite: Bool { model.snapshot.zones[link.zone.key]?.canWrite != false }
+
+    var body: some View {
+        Button(action: open) { ClippingCard(item: link, featured: featured) }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("clipping-\(link.id)")
+            .contextMenu {
+                if let url = URL(string: link["url"]) { ShareLink(item: url) }
+                Button("Copy link", systemImage: "doc.on.doc") { UIPasteboard.general.string = link["url"] }
+                if canWrite {
+                    Button("Delete link", systemImage: "trash", role: .destructive) { confirmingDelete = true }
+                }
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                if canWrite {
+                    // Confirm first, without the destructive role's automatic row-removal animation.
+                    Button("Delete", systemImage: "trash") { confirmingDelete = true }
+                        .tint(.red)
+                }
+            }
+            // Keep the presentation source on the card, including after the list scrolls.
+            .confirmationDialog("Delete this link for everyone?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+                Button("Delete link", role: .destructive) {
+                    Task { await model.perform { try await model.service.delete(link) } }
+                }
+                Button("Cancel", role: .cancel) { }
+            }
     }
 }
 
